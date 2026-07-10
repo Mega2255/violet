@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Violet Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          bg: '#FAF8FF', violet: '#6C5CE7', violetdeep: '#4B3FBF',
+          peach: '#FFB199', mint: '#7FD9BE', sky: '#8ED2F0', ink: '#2D2A3D', soft: '#6E6A7C',
+        },
+        fontFamily: { display: ['Poppins', 'sans-serif'] },
+        keyframes: {
+          popIn: { '0%': { transform: 'scale(.6)', opacity: '0' }, '60%': { transform: 'scale(1.08)' }, '100%': { transform: 'scale(1)', opacity: '1' } },
+          shake: { '0%,100%': { transform: 'translateX(0)' }, '20%': { transform: 'translateX(-6px)' }, '40%': { transform: 'translateX(6px)' }, '60%': { transform: 'translateX(-4px)' }, '80%': { transform: 'translateX(4px)' } },
+          spin: { '100%': { transform: 'rotate(360deg)' } },
+        },
+        animation: { popIn: 'popIn .4s cubic-bezier(.34,1.56,.64,1) forwards', shake: 'shake .4s ease', spinslow: 'spin 1s linear infinite' },
+      }
+    }
+  }
+</script>
+<style>
+  :root{
+    --bg:#FAF8FF; --surface:#ffffff; --surface-2:#F4F1FC; --text:#2D2A3D; --muted:#6E6A7C;
+    --border:rgba(45,42,61,.12); --shadow:0 10px 30px -14px rgba(45,42,61,.18); --font-ui:'Inter',sans-serif; --font-display:'Poppins',sans-serif;
+  }
+  html.dark{
+    --bg:#121022; --surface:#1D1A2E; --surface-2:#252137; --text:#F2EFFB; --muted:#B7B2CC;
+    --border:rgba(255,255,255,.08); --shadow:0 10px 30px -14px rgba(0,0,0,.55);
+  }
+  html, body{ background:var(--bg); }
+  body{ color:var(--text); font-family:var(--font-ui); transition:background .25s ease, color .25s ease; }
+  h1,h2,h3,.font-display{ font-family:var(--font-display); }
+  .surface{ background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow); }
+  .surface-2{ background:var(--surface-2); }
+  .text-muted2{ color:var(--muted); }
+  .border-soft2{ border-color:var(--border); }
+  .input-field{ width:100%; background:transparent; border-bottom:2px solid var(--border); color:var(--text); padding-bottom:.6rem; font-size:14.5px; transition:border-color .2s ease; }
+  .input-field::placeholder{ color:var(--muted); opacity:.65; }
+  .input-field:focus{ outline:none; border-color:#6C5CE7; }
+  select.input-field{ -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6A7C' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 2px center; background-size:15px; }
+  .label-sm{ font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; display:block; }
+  .help-sm{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .error-sm{ font-size:12.5px; color:#e11d48; margin-top:4px; }
+  .btn-primary{ background:#6C5CE7; color:#fff; box-shadow:0 5px 0 0 #4B3FBF; transition:transform .15s ease; }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-primary:active{ transform:translateY(0) scale(.98); }
+  .btn-primary:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+  .btn-ghost{ background:var(--surface-2); color:var(--text); border:1px solid var(--border); }
+  .pill{ font-size:12px; font-weight:700; padding:.2rem .65rem; border-radius:999px; display:inline-block; }
+  .pill-pending{ background:rgba(245,166,35,.15); color:#b06a00; }
+  html.dark .pill-pending{ color:#f5c163; }
+  .pill-approved{ background:rgba(29,158,117,.15); color:#1D9E75; }
+  .pill-rejected{ background:rgba(225,29,72,.12); color:#e11d48; }
+  .nav-item{ display:flex; align-items:center; gap:.7rem; padding:.65rem .9rem; border-radius:.85rem; font-size:14px; font-weight:600; color:var(--muted); transition:background .15s ease, color .15s ease; cursor:pointer; }
+  .nav-item:hover{ background:var(--surface-2); color:var(--text); }
+  .nav-item.active{ background:#6C5CE7; color:#fff; }
+  .tab-btn{ font-size:13.5px; font-weight:700; padding:.55rem 1rem; border-radius:999px; color:var(--muted); background:var(--surface-2); }
+  .tab-btn.active{ background:#6C5CE7; color:#fff; }
+  .modal-backdrop{ background:rgba(20,18,32,.55); backdrop-filter:blur(3px); }
+  .pin-box{ width:2.6rem; height:3rem; text-align:center; font-size:20px; font-weight:700; border-radius:.75rem; border:2px solid var(--border); background:var(--surface-2); color:var(--text); }
+  .pin-box:focus{ outline:none; border-color:#6C5CE7; }
+  .spinner-sm circle{ opacity:.25; }
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ============ Auth gate / loading ============ -->
+<div id="authGate" class="min-h-screen flex flex-col items-center justify-center gap-4">
+  <svg class="animate-spinslow" width="34" height="34" viewBox="0 0 24 24" fill="none"><circle class="spinner-sm" cx="12" cy="12" r="9" stroke="#6C5CE7" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="#6C5CE7" stroke-width="3" stroke-linecap="round"/></svg>
+  <p class="text-muted2 text-[14px] font-medium">Loading your dashboard…</p>
+</div>
+
+<!-- ============ App shell ============ -->
+<div id="appShell" class="hidden min-h-screen lg:grid lg:grid-cols-[260px_1fr]">
+
+  <!-- Sidebar (desktop) / Drawer (mobile) -->
+  <div id="drawerBackdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+  <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-[260px] -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 surface lg:border-r lg:border-l-0 border-r flex flex-col p-5">
+    <div class="flex items-center justify-between mb-8">
+      <a href="#" class="flex items-center gap-2 font-display font-semibold text-xl">
+        <svg width="26" height="26" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="14" fill="#6C5CE7"/><path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        Violet
+      </a>
+      <button id="closeDrawerBtn" class="lg:hidden text-muted2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+
+    <nav class="flex-1 space-y-1.5" id="navList">
+      <div class="nav-item active" data-section="overview">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg> Overview
+      </div>
+      <div class="nav-item" data-section="deposit">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V7m0 14-4.5-4.5M12 21l4.5-4.5M4 4h16"/></svg> <span data-i18n="nav.deposit">Deposit</span>
+      </div>
+      <div class="nav-item" data-section="transfer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4M17 17H4M17 17l-4-4M17 17l-4 4"/></svg> <span data-i18n="nav.transfer">Transfer</span>
+      </div>
+      <div class="nav-item" data-section="withdraw">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg> <span data-i18n="nav.withdraw">Withdraw</span>
+      </div>
+      <div class="nav-item" data-section="cards">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/></svg> <span data-i18n="nav.cards">Cards</span>
+      </div>
+      <div class="nav-item" data-section="loans">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> <span data-i18n="nav.loans">Loans</span>
+      </div>
+      <div class="nav-item" data-section="history">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9 9 0 0 0-6.4 2.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 3"/></svg> <span data-i18n="nav.history">History</span>
+      </div>
+      <div class="nav-item" data-section="settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg> <span data-i18n="nav.settings">Settings</span>
+      </div>
+      <div class="nav-item" data-section="profile">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> <span data-i18n="nav.profile">Profile</span>
+      </div>
+    </nav>
+
+    <button id="logoutBtn" class="nav-item !text-rose-500 mt-2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> <span data-i18n="nav.logout">Log out</span>
+    </button>
+  </aside>
+
+  <div class="flex flex-col min-h-screen">
+    <!-- Top bar -->
+    <header class="lg:hidden sticky top-0 z-20 surface flex items-center justify-between px-4 py-3.5">
+      <button id="openDrawerBtn" class="text-muted2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <p id="mobileTitle" class="font-display font-semibold text-[15px]">Overview</p>
+      <div class="w-9 h-9 rounded-full bg-violet/15 flex items-center justify-center font-display font-semibold text-violet text-[13px]" id="avatarChip">–</div>
+    </header>
+
+    <main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-9">
+
+      <!-- ===== Overview ===== -->
+      <section id="sec-overview">
+        <h1 class="hidden lg:block text-[26px] font-semibold mb-1" data-i18n="overview.title">Overview</h1>
+        <p class="hidden lg:block text-muted2 text-[14.5px] mb-6" id="greetingText">Welcome back.</p>
+
+        <div class="rounded-3xl p-6 mb-6 text-white relative overflow-hidden bg-gradient-to-br from-violet to-violetdeep">
+          <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10"></div>
+          <p class="text-white/70 text-[12.5px] font-semibold uppercase tracking-wide mb-2" data-i18n="overview.balance">Available balance</p>
+          <p id="balanceDisplay" class="font-display font-bold text-[34px] sm:text-[38px] mb-4">—</p>
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <p class="text-white/60 text-[11.5px] uppercase tracking-wide">Account number</p>
+              <p id="acctNumberChip" class="font-semibold text-[15px] tracking-wide">—</p>
+            </div>
+            <span id="currencyChip" class="text-[12.5px] font-semibold bg-white/15 rounded-full px-3 py-1">—</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+          <button class="quick-action surface rounded-2xl p-4 flex flex-col items-center gap-2 text-center" data-goto="deposit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" stroke-width="2"><path d="M12 21V7m0 14-4.5-4.5M12 21l4.5-4.5M4 4h16"/></svg>
+            <span class="text-[12.5px] font-semibold" data-i18n="nav.deposit">Deposit</span>
+          </button>
+          <button class="quick-action surface rounded-2xl p-4 flex flex-col items-center gap-2 text-center" data-goto="transfer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4M17 17H4M17 17l-4-4M17 17l-4 4"/></svg>
+            <span class="text-[12.5px] font-semibold" data-i18n="nav.transfer">Transfer</span>
+          </button>
+          <button class="quick-action surface rounded-2xl p-4 flex flex-col items-center gap-2 text-center" data-goto="withdraw">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg>
+            <span class="text-[12.5px] font-semibold" data-i18n="nav.withdraw">Withdraw</span>
+          </button>
+          <button class="quick-action surface rounded-2xl p-4 flex flex-col items-center gap-2 text-center" data-goto="cards">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" stroke-width="2"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/></svg>
+            <span class="text-[12.5px] font-semibold" data-i18n="cards.apply">Apply for card</span>
+          </button>
+          <button class="quick-action surface rounded-2xl p-4 flex flex-col items-center gap-2 text-center" data-goto="loans">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span class="text-[12.5px] font-semibold" data-i18n="loans.apply">Apply for loan</span>
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-display font-semibold text-[17px]" data-i18n="overview.recent">Recent activity</h2>
+          <button class="text-violet text-[12.5px] font-semibold" data-goto="history" data-i18n="overview.viewAll">View all</button>
+        </div>
+        <div id="recentActivity" class="surface rounded-2xl divide-y divide-[var(--border)]">
+          <p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="overview.empty">No activity yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Deposit ===== -->
+      <section id="sec-deposit" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="deposit.title">Deposit</h1>
+        <p class="text-muted2 text-[14px] mb-5" data-i18n="deposit.sub">Fund your account via bank transfer or crypto.</p>
+
+        <div class="flex gap-2 mb-6 flex-wrap">
+          <button class="tab-btn active" data-deposit-tab="bank" data-i18n="deposit.bankTab">Bank transfer</button>
+          <button class="tab-btn" data-deposit-tab="crypto" data-i18n="deposit.cryptoTab">Crypto</button>
+        </div>
+
+        <div id="depositAlert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+        <!-- Bank deposit panel -->
+        <div id="depositBankPanel" class="surface rounded-2xl p-5 mb-8">
+          <p class="font-display font-semibold text-[15.5px] mb-1" data-i18n="deposit.yourDetails">Your account details</p>
+          <p class="help-sm mb-4" id="depositBankHelpText" data-i18n="deposit.bankHelp">Send funds to this account, then confirm below.</p>
+
+          <div class="space-y-3 mb-5">
+            <div class="surface-2 rounded-xl p-3.5 flex items-center justify-between gap-3">
+              <div class="min-w-0"><p class="help-sm mb-0.5" data-i18n="deposit.bankNameLbl">Bank name</p><p id="depBankName" class="font-semibold text-[14.5px] truncate">Violet Bank</p></div>
+              <button type="button" id="copyDepBankBtn" class="copy-chip btn-ghost text-[11.5px] font-semibold rounded-full px-3 py-1.5 flex-shrink-0">Copy</button>
+            </div>
+            <div class="surface-2 rounded-xl p-3.5 flex items-center justify-between gap-3">
+              <div class="min-w-0"><p class="help-sm mb-0.5" data-i18n="deposit.acctNumLbl">Account number</p><p id="depAcctNumber" class="font-semibold text-[14.5px] tracking-wide truncate">—</p></div>
+              <button type="button" id="copyDepAcctBtn" class="copy-chip btn-ghost text-[11.5px] font-semibold rounded-full px-3 py-1.5 flex-shrink-0">Copy</button>
+            </div>
+            <div class="surface-2 rounded-xl p-3.5 flex items-center justify-between gap-3">
+              <div class="min-w-0"><p class="help-sm mb-0.5" data-i18n="deposit.acctNameLbl">Account name</p><p id="depAcctName" class="font-semibold text-[14.5px] truncate">—</p></div>
+              <button type="button" id="copyDepNameBtn" class="copy-chip btn-ghost text-[11.5px] font-semibold rounded-full px-3 py-1.5 flex-shrink-0">Copy</button>
+            </div>
+            <div class="surface-2 rounded-xl p-3.5 flex items-center justify-between gap-3">
+              <div class="min-w-0"><p class="help-sm mb-0.5" data-i18n="deposit.currencyLbl">Currency</p><p id="depCurrency" class="font-semibold text-[14.5px] truncate">—</p></div>
+            </div>
+          </div>
+
+          <form id="bankDepositForm" class="space-y-4 border-t border-soft2 pt-4">
+            <p class="font-display font-semibold text-[14.5px]" data-i18n="deposit.confirmTitle">Already sent the funds?</p>
+            <div><label class="label-sm" data-i18n="deposit.amountSent">Amount deposited</label><input required id="bdAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="bdAmountError" class="hidden error-sm"></p></div>
+            <div><label class="label-sm" data-i18n="deposit.ref">Reference / sender name (optional)</label><input id="bdRef" class="input-field" placeholder="e.g. transfer reference" /></div>
+            <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="deposit.done">I've made this deposit</button>
+          </form>
+        </div>
+
+        <!-- Crypto deposit panel -->
+        <div id="depositCryptoPanel" class="surface rounded-2xl p-5 mb-8 hidden">
+          <p class="font-display font-semibold text-[15.5px] mb-1" data-i18n="deposit.selectCoin">Select a coin</p>
+          <p class="help-sm mb-4" data-i18n="deposit.cryptoHelp">Send the exact amount to the address below, then confirm.</p>
+
+          <div id="cryptoCoinGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5"></div>
+
+          <div id="cryptoAddressBox" class="hidden surface-2 rounded-2xl p-4 mb-5">
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+              <img id="cryptoQr" src="" alt="QR code" class="w-32 h-32 rounded-xl border border-soft2 bg-white p-1.5 flex-shrink-0" />
+              <div class="min-w-0 w-full">
+                <p class="help-sm mb-1"><span id="cryptoNetworkLabel"></span> <span data-i18n="deposit.walletAddress">wallet address</span></p>
+                <p id="cryptoAddress" class="font-semibold text-[13px] break-all mb-2">—</p>
+                <button type="button" id="copyCryptoBtn" class="btn-ghost text-[12px] font-semibold rounded-full px-3.5 py-2">Copy address</button>
+                <p class="help-sm mt-2" id="cryptoWarning"></p>
+              </div>
+            </div>
+          </div>
+
+          <form id="cryptoDepositForm" class="space-y-4 border-t border-soft2 pt-4 hidden">
+            <p class="font-display font-semibold text-[14.5px]" data-i18n="deposit.confirmTitle">Already sent the funds?</p>
+            <div><label class="label-sm" data-i18n="deposit.amountSentUsd">Amount deposited (USD equivalent)</label><input required id="cdAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="cdAmountError" class="hidden error-sm"></p></div>
+            <div><label class="label-sm" data-i18n="deposit.txHash">Transaction hash (optional)</label><input id="cdHash" class="input-field" placeholder="0x… or tx id" /></div>
+            <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="deposit.done">I've made this deposit</button>
+          </form>
+        </div>
+
+        <h2 class="font-display font-semibold text-[16px] mb-3" data-i18n="deposit.history">Deposit history</h2>
+        <div id="depositHistory" class="surface rounded-2xl divide-y divide-[var(--border)]">
+          <p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="overview.empty">No activity yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Transfer ===== -->
+      <section id="sec-transfer" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="nav.transfer">Transfer</h1>
+        <p class="text-muted2 text-[14px] mb-5" data-i18n="transfer.sub">Send money locally or internationally.</p>
+
+        <div class="flex gap-2 mb-6">
+          <button class="tab-btn active" data-transfer-tab="local" data-i18n="transfer.local">Local transfer</button>
+          <button class="tab-btn" data-transfer-tab="intl" data-i18n="transfer.intl">International transfer</button>
+        </div>
+
+        <div id="transferAlert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+        <form id="localTransferForm" class="surface rounded-2xl p-5 mb-8 space-y-4">
+          <div><label class="label-sm" data-i18n="transfer.bankName">Recipient bank name</label><input required id="ltBankName" class="input-field" placeholder="First Bank" /></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label-sm" data-i18n="transfer.acctNum">Recipient account number</label><input required id="ltAccountNumber" class="input-field" placeholder="0123456789" /></div>
+            <div><label class="label-sm" data-i18n="transfer.acctName">Recipient account name</label><input required id="ltAccountName" class="input-field" placeholder="Jane Doe" /></div>
+          </div>
+          <div><label class="label-sm" data-i18n="transfer.amount">Amount</label><input required id="ltAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="ltAmountError" class="hidden error-sm"></p></div>
+          <div><label class="label-sm" data-i18n="transfer.narration">Narration (optional)</label><input id="ltNarration" class="input-field" placeholder="What's this for?" /></div>
+          <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="transfer.send">Send transfer</button>
+        </form>
+
+        <form id="intlTransferForm" class="surface rounded-2xl p-5 mb-8 space-y-4 hidden">
+          <div><label class="label-sm" data-i18n="transfer.recName">Recipient full name</label><input required id="itName" class="input-field" placeholder="Jane Doe" /></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label-sm" data-i18n="transfer.recCountry">Recipient country</label><select required id="itCountry" class="input-field"><option value="" disabled selected data-i18n="common.select">Select country</option></select></div>
+            <div><label class="label-sm" data-i18n="transfer.bankName">Recipient bank name</label><input required id="itBankName" class="input-field" placeholder="Chase Bank" /></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label-sm" data-i18n="transfer.swift">SWIFT / BIC code</label><input required id="itSwift" class="input-field" placeholder="CHASUS33" /></div>
+            <div><label class="label-sm" data-i18n="transfer.iban">IBAN / account number</label><input required id="itAccountNumber" class="input-field" placeholder="GB29 NWBK 6016 1331 9268 19" /></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label-sm" data-i18n="transfer.amount">Amount</label><input required id="itAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="itAmountError" class="hidden error-sm"></p></div>
+            <div><label class="label-sm" data-i18n="transfer.destCurrency">Destination currency</label><select required id="itCurrency" class="input-field"><option value="" disabled selected data-i18n="common.select">Select currency</option></select></div>
+          </div>
+          <div>
+            <label class="label-sm" data-i18n="transfer.purpose">Purpose of transfer</label>
+            <select id="itPurpose" class="input-field">
+              <option data-i18n="transfer.p1">Family support</option>
+              <option data-i18n="transfer.p2">Business payment</option>
+              <option data-i18n="transfer.p3">Education</option>
+              <option data-i18n="transfer.p4">Other</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="transfer.sendIntl">Send international transfer</button>
+        </form>
+
+        <h2 class="font-display font-semibold text-[16px] mb-3" data-i18n="transfer.history">Transfer history</h2>
+        <div id="transferHistory" class="surface rounded-2xl divide-y divide-[var(--border)]">
+          <p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="overview.empty">No activity yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Withdraw ===== -->
+      <section id="sec-withdraw" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="nav.withdraw">Withdraw</h1>
+        <p class="text-muted2 text-[14px] mb-5" data-i18n="withdraw.sub">Cash out to PayPal, Cash App, or your bank.</p>
+
+        <div id="withdrawMethodGrid" class="grid grid-cols-3 gap-3 mb-6"></div>
+
+        <div id="withdrawAlert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+        <form id="paypalForm" class="surface rounded-2xl p-5 mb-8 space-y-4">
+          <div><label class="label-sm">PayPal email</label><input required type="email" id="ppEmail" class="input-field" placeholder="you@paypal.com" /></div>
+          <div><label class="label-sm" data-i18n="transfer.amount">Amount</label><input required id="ppAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="ppAmountError" class="hidden error-sm"></p></div>
+          <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="withdraw.request">Request withdrawal</button>
+        </form>
+
+        <form id="cashappForm" class="surface rounded-2xl p-5 mb-8 space-y-4 hidden">
+          <div><label class="label-sm">$Cashtag</label><input required id="caTag" class="input-field" placeholder="$janedoe" /></div>
+          <div><label class="label-sm" data-i18n="transfer.amount">Amount</label><input required id="caAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="caAmountError" class="hidden error-sm"></p></div>
+          <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="withdraw.request">Request withdrawal</button>
+        </form>
+
+        <form id="bankWithdrawForm" class="surface rounded-2xl p-5 mb-8 space-y-4 hidden">
+          <div><label class="label-sm">Account holder name</label><input required id="bwName" class="input-field" placeholder="Jane Doe" /></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label-sm">Bank name</label><input required id="bwBank" class="input-field" placeholder="First Bank" /></div>
+            <div><label class="label-sm">Account number</label><input required id="bwAccountNumber" class="input-field" placeholder="0123456789" /></div>
+          </div>
+          <div><label class="label-sm">Routing / sort code</label><input required id="bwRouting" class="input-field" placeholder="011000015" /></div>
+          <div><label class="label-sm" data-i18n="transfer.amount">Amount</label><input required id="bwAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /><p id="bwAmountError" class="hidden error-sm"></p></div>
+          <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="withdraw.request">Request withdrawal</button>
+        </form>
+
+        <h2 class="font-display font-semibold text-[16px] mb-3" data-i18n="withdraw.history">Withdrawal history</h2>
+        <div id="withdrawHistory" class="surface rounded-2xl divide-y divide-[var(--border)]">
+          <p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="overview.empty">No activity yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Cards ===== -->
+      <section id="sec-cards" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="nav.cards">Cards</h1>
+        <p class="text-muted2 text-[14px] mb-5" data-i18n="cards.sub">Apply for a virtual or physical card.</p>
+
+        <div id="cardsAlert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+        <div id="cardTypeGrid" class="grid sm:grid-cols-2 gap-5 mb-8"></div>
+
+        <form id="cardApplyForm" class="surface rounded-2xl p-5 mb-8 space-y-4 hidden">
+          <p class="font-display font-semibold text-[15px]">Confirm application: <span id="cardApplyTypeName" class="text-violet"></span></p>
+          <div><label class="label-sm">Name on card</label><input required id="cardholderName" class="input-field" /></div>
+          <div><label class="label-sm">Billing address</label><input required id="cardBillingAddress" class="input-field" /></div>
+          <div class="flex gap-3">
+            <button type="button" id="cancelCardApplyBtn" class="btn-ghost font-display font-semibold text-[14.5px] py-3 rounded-full flex-1" data-i18n="common.cancel">Cancel</button>
+            <button type="submit" class="btn-primary font-display font-semibold text-[14.5px] py-3 rounded-full flex-1" data-i18n="cards.submitApp">Submit application</button>
+          </div>
+        </form>
+
+        <h2 class="font-display font-semibold text-[16px] mb-3" data-i18n="cards.yours">Your cards &amp; applications</h2>
+        <div id="issuedCardsGrid" class="grid sm:grid-cols-2 gap-5 mb-5"></div>
+        <div id="cardsHistory" class="surface rounded-2xl divide-y divide-[var(--border)]">
+          <p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="cards.empty">No cards yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Loans ===== -->
+      <section id="sec-loans" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="nav.loans">Loans</h1>
+        <p class="text-muted2 text-[14px] mb-5" data-i18n="loans.sub">Apply for a loan — funds arrive once approved.</p>
+
+        <div id="loansAlert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+        <form id="loanForm" class="surface rounded-2xl p-5 mb-8 space-y-4">
+          <div><label class="label-sm" data-i18n="loans.amount">Loan amount</label><input required id="loanAmount" type="number" min="1" step="0.01" class="input-field" placeholder="0.00" /></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="label-sm" data-i18n="loans.purpose">Purpose</label>
+              <select id="loanPurpose" class="input-field">
+                <option data-i18n="loans.p1">Business</option>
+                <option data-i18n="loans.p2">Education</option>
+                <option data-i18n="loans.p3">Medical</option>
+                <option data-i18n="loans.p4">Personal</option>
+              </select>
+            </div>
+            <div>
+              <label class="label-sm" data-i18n="loans.duration">Duration</label>
+              <select id="loanDuration" class="input-field">
+                <option value="3">3 months</option>
+                <option value="6">6 months</option>
+                <option value="12" selected>12 months</option>
+                <option value="24">24 months</option>
+              </select>
+            </div>
+          </div>
+          <div><label class="label-sm" data-i18n="loans.income">Monthly income (optional)</label><input id="loanIncome" type="number" min="0" step="0.01" class="input-field" placeholder="0.00" /></div>
+          <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="loans.apply">Apply for loan</button>
+        </form>
+
+        <h2 class="font-display font-semibold text-[16px] mb-3" data-i18n="loans.history">Loan history</h2>
+        <div id="loansHistory" class="surface rounded-2xl divide-y divide-[var(--border)]">
+          <p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="overview.empty">No activity yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Transaction History ===== -->
+      <section id="sec-history" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="history.title">Transaction History</h1>
+        <p class="text-muted2 text-[14px] mb-5" data-i18n="history.sub">Every transaction on your account, from first to most recent.</p>
+
+        <div class="surface rounded-2xl p-4 mb-5 flex flex-col sm:flex-row gap-4 sm:items-end">
+          <div class="flex-1">
+            <label class="label-sm" data-i18n="history.filterType">Type</label>
+            <select id="historyTypeFilter" class="input-field">
+              <option value="all" data-i18n="history.allTypes">All types</option>
+              <option value="deposit" data-i18n="history.tDeposit">Deposits</option>
+              <option value="transfer" data-i18n="history.tTransfer">Transfers</option>
+              <option value="withdrawal" data-i18n="history.tWithdrawal">Withdrawals</option>
+              <option value="card_application" data-i18n="history.tCard">Card applications</option>
+              <option value="loan_application" data-i18n="history.tLoan">Loan applications</option>
+              <option value="admin_adjustment" data-i18n="history.tAdjustment">Account adjustments</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label class="label-sm" data-i18n="history.filterStatus">Status</label>
+            <select id="historyStatusFilter" class="input-field">
+              <option value="all" data-i18n="history.allStatuses">All statuses</option>
+              <option value="pending" data-i18n="history.stPending">Pending</option>
+              <option value="approved" data-i18n="history.stApproved">Approved</option>
+              <option value="rejected" data-i18n="history.stRejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="fullHistoryList" class="surface rounded-2xl divide-y divide-[var(--border)]">
+          <p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="overview.empty">No activity yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Settings ===== -->
+      <section id="sec-settings" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="nav.settings">Settings</h1>
+        <p class="text-muted2 text-[14px] mb-6" data-i18n="settings.sub">Personalize how your dashboard looks and reads.</p>
+
+        <div class="surface rounded-2xl p-5 mb-5">
+          <p class="font-display font-semibold text-[15px] mb-3" data-i18n="settings.theme">Appearance</p>
+          <div class="flex gap-3">
+            <button class="theme-btn tab-btn flex-1" data-theme="light" data-i18n="settings.light">Light</button>
+            <button class="theme-btn tab-btn flex-1" data-theme="dark" data-i18n="settings.dark">Dark</button>
+          </div>
+        </div>
+
+        <div class="surface rounded-2xl p-5 mb-5">
+          <p class="font-display font-semibold text-[15px] mb-3" data-i18n="settings.font">Font</p>
+          <select id="fontSelect" class="input-field">
+            <option value="Inter">Inter (default)</option>
+            <option value="Poppins">Poppins</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Nunito">Nunito</option>
+            <option value="Merriweather">Merriweather</option>
+          </select>
+        </div>
+
+        <div class="surface rounded-2xl p-5 mb-5">
+          <p class="font-display font-semibold text-[15px] mb-3" data-i18n="settings.language">Language</p>
+          <select id="languageSelect" class="input-field">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="yo">Yorùbá</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+          </select>
+        </div>
+
+        <div class="surface rounded-2xl p-5">
+          <p class="font-display font-semibold text-[15px] mb-1" data-i18n="settings.pin">Transaction PIN</p>
+          <p class="help-sm mb-3" id="pinStatusText">Not set yet — you'll be asked to create one on your first transfer or withdrawal.</p>
+          <button id="resetPinBtn" class="btn-ghost font-semibold text-[13.5px] py-2.5 px-4 rounded-full">Reset PIN</button>
+        </div>
+      </section>
+
+      <!-- ===== Profile ===== -->
+      <section id="sec-profile" class="hidden">
+        <div class="flex items-center justify-between mb-1">
+          <h1 class="text-[24px] sm:text-[26px] font-semibold" data-i18n="nav.profile">Profile</h1>
+          <button id="editProfileBtn" class="btn-ghost font-semibold text-[13px] py-2 px-4 rounded-full" data-i18n="common.edit">Edit</button>
+        </div>
+        <p class="text-muted2 text-[14px] mb-6" data-i18n="profile.sub">Your personal and account details.</p>
+
+        <div id="profileAlert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+        <form id="profileForm" class="surface rounded-2xl p-5 space-y-4">
+          <div><label class="label-sm">Full name</label><input disabled id="pFullName" class="input-field" /></div>
+          <div><label class="label-sm">Email</label><input disabled id="pEmail" class="input-field" /></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label-sm">Phone number</label><input disabled id="pPhone" class="input-field" /></div>
+            <div><label class="label-sm">Date of birth</label><input disabled id="pDob" type="date" class="input-field" /></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label-sm">Country</label><select disabled id="pCountry" class="input-field"></select></div>
+            <div><label class="label-sm">Currency</label><select disabled id="pCurrency" class="input-field"></select></div>
+          </div>
+          <div><label class="label-sm">Street address</label><input disabled id="pAddress" class="input-field" /></div>
+          <div class="grid sm:grid-cols-3 gap-4">
+            <div><label class="label-sm">City</label><input disabled id="pCity" class="input-field" /></div>
+            <div><label class="label-sm">State</label><input disabled id="pState" class="input-field" /></div>
+            <div><label class="label-sm">Postal code</label><input disabled id="pPostal" class="input-field" /></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="label-sm">Employment status</label>
+              <select disabled id="pEmployment" class="input-field">
+                <option>Employed full-time</option><option>Employed part-time</option><option>Self-employed</option>
+                <option>Student</option><option>Unemployed</option><option>Retired</option>
+              </select>
+            </div>
+            <div><label class="label-sm">Occupation</label><input disabled id="pOccupation" class="input-field" /></div>
+          </div>
+          <div id="profileSaveRow" class="hidden pt-2">
+            <button type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full" data-i18n="common.save">Save changes</button>
+          </div>
+        </form>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ Suspended gate ============ -->
+<div id="suspendedGate" class="hidden fixed inset-0 z-[70] bg-bg min-h-screen flex flex-col items-center justify-center px-6 text-center">
+  <div class="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center mb-5">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+  </div>
+  <h1 class="font-display font-semibold text-[22px] sm:text-[25px] mb-2">Your account has been suspended</h1>
+  <p class="text-muted2 text-[14.5px] max-w-sm mb-7 leading-relaxed">For your security, access to your Violet account has been temporarily restricted. Please contact customer care to resolve this.</p>
+  <div class="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+    <a href="mailto:support@violetbank.example" class="btn-primary font-display font-semibold text-[14.5px] py-3 rounded-full flex-1 flex items-center justify-center gap-2">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat customer care
+    </a>
+    <button id="suspendedLogoutBtn" class="btn-ghost font-display font-semibold text-[14.5px] py-3 rounded-full flex-1">Log out</button>
+  </div>
+</div>
+
+<!-- ============ PIN modal ============ -->
+<div id="pinModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+  <div class="surface rounded-3xl p-6 w-full max-w-[360px] text-center animate-popIn">
+    <p id="pinModalTitle" class="font-display font-semibold text-[18px] mb-1.5">Create your transaction PIN</p>
+    <p id="pinModalSub" class="text-muted2 text-[13.5px] mb-5">You'll use this to approve transfers and withdrawals.</p>
+
+    <div id="pinEntryRow" class="flex justify-center gap-2.5 mb-3">
+      <input maxlength="1" inputmode="numeric" class="pin-box pin-digit" data-idx="0" />
+      <input maxlength="1" inputmode="numeric" class="pin-box pin-digit" data-idx="1" />
+      <input maxlength="1" inputmode="numeric" class="pin-box pin-digit" data-idx="2" />
+      <input maxlength="1" inputmode="numeric" class="pin-box pin-digit" data-idx="3" />
+    </div>
+    <div id="pinConfirmRow" class="hidden flex-col items-center gap-2 mb-3">
+      <p class="help-sm mb-1">Confirm PIN</p>
+      <div class="flex justify-center gap-2.5">
+        <input maxlength="1" inputmode="numeric" class="pin-box pin-confirm-digit" data-idx="0" />
+        <input maxlength="1" inputmode="numeric" class="pin-box pin-confirm-digit" data-idx="1" />
+        <input maxlength="1" inputmode="numeric" class="pin-box pin-confirm-digit" data-idx="2" />
+        <input maxlength="1" inputmode="numeric" class="pin-box pin-confirm-digit" data-idx="3" />
+      </div>
+    </div>
+    <p id="pinError" class="hidden error-sm mb-2"></p>
+
+    <div class="flex gap-3 mt-4">
+      <button id="pinCancelBtn" class="btn-ghost font-semibold text-[14px] py-3 rounded-full flex-1" data-i18n="common.cancel">Cancel</button>
+      <button id="pinSubmitBtn" class="btn-primary font-display font-semibold text-[14px] py-3 rounded-full flex-1">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center px-4 w-full sm:w-auto"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, update, push, set, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // TODO: replace with your own Firebase project config (same project as signup.html)
+  const firebaseConfig = {
+   apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
+  authDomain: "orizonpay-60113.firebaseapp.com",
+  projectId: "orizonpay-60113",
+  storageBucket: "orizonpay-60113.firebasestorage.app",
+  messagingSenderId: "1026303657239",
+  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const $ = (id) => document.getElementById(id);
+  let currentUid = null;
+  let userData = {};
+  let allTx = [];
+
+  /* ---------- toast / alert helpers ---------- */
+  function showToast(message, tone = "ink") {
+    const wrap = $("toastWrap");
+    const el = document.createElement("div");
+    const tones = { ink: "bg-ink text-white", mint: "bg-emerald-600 text-white", rose: "bg-rose-600 text-white" };
+    el.className = `${tones[tone] || tones.ink} text-[13.5px] font-semibold px-5 py-3 rounded-full shadow-lg max-w-[92vw] text-center`;
+    el.textContent = message;
+    wrap.appendChild(el);
+    setTimeout(() => { el.style.transition = "opacity .3s ease, transform .3s ease"; el.style.opacity = "0"; el.style.transform = "translateY(8px)"; setTimeout(() => el.remove(), 300); }, 3400);
+  }
+  function setAlert(el, message, tone = "rose") {
+    if (!message) { el.classList.add("hidden"); el.textContent = ""; return; }
+    const tones = { rose: "bg-rose-50 text-rose-700", mint: "bg-mint/20 text-emerald-700" };
+    el.className = `mb-4 rounded-xl px-4 py-3 text-[13px] font-medium ${tones[tone] || tones.rose}`;
+    el.textContent = message;
+    el.classList.remove("hidden");
+  }
+  function shakeEl(el) { el.classList.remove("animate-shake"); void el.offsetWidth; el.classList.add("animate-shake"); }
+
+  async function copyText(text, okMsg) {
+    try { await navigator.clipboard.writeText(text); showToast(okMsg || "Copied", "mint"); }
+    catch { showToast("Couldn't copy — copy it manually", "rose"); }
+  }
+
+  /* ---------- countries & currencies (shared with signup) ---------- */
+  const COUNTRIES = ["Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (Brazzaville)","Congo (DRC)","Costa Rica","Croatia","Cuba","Cyprus","Czechia","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Ivory Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"];
+  const CURRENCIES = [
+    { code: "USD", name: "US Dollar", symbol: "$" }, { code: "EUR", name: "Euro", symbol: "€" }, { code: "GBP", name: "British Pound", symbol: "£" },
+    { code: "NGN", name: "Nigerian Naira", symbol: "₦" }, { code: "GHS", name: "Ghanaian Cedi", symbol: "₵" }, { code: "KES", name: "Kenyan Shilling", symbol: "KSh" },
+    { code: "ZAR", name: "South African Rand", symbol: "R" }, { code: "EGP", name: "Egyptian Pound", symbol: "E£" }, { code: "XOF", name: "West African CFA Franc", symbol: "CFA" },
+    { code: "XAF", name: "Central African CFA Franc", symbol: "FCFA" }, { code: "UGX", name: "Ugandan Shilling", symbol: "USh" }, { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh" },
+    { code: "MAD", name: "Moroccan Dirham", symbol: "MAD" }, { code: "CAD", name: "Canadian Dollar", symbol: "$" }, { code: "AUD", name: "Australian Dollar", symbol: "$" },
+    { code: "NZD", name: "New Zealand Dollar", symbol: "$" }, { code: "INR", name: "Indian Rupee", symbol: "₹" }, { code: "PKR", name: "Pakistani Rupee", symbol: "₨" },
+    { code: "BDT", name: "Bangladeshi Taka", symbol: "৳" }, { code: "CNY", name: "Chinese Yuan", symbol: "¥" }, { code: "JPY", name: "Japanese Yen", symbol: "¥" },
+    { code: "KRW", name: "South Korean Won", symbol: "₩" }, { code: "SGD", name: "Singapore Dollar", symbol: "$" }, { code: "THB", name: "Thai Baht", symbol: "฿" },
+    { code: "IDR", name: "Indonesian Rupiah", symbol: "Rp" }, { code: "PHP", name: "Philippine Peso", symbol: "₱" }, { code: "VND", name: "Vietnamese Dong", symbol: "₫" },
+    { code: "AED", name: "UAE Dirham", symbol: "د.إ" }, { code: "SAR", name: "Saudi Riyal", symbol: "﷼" }, { code: "ILS", name: "Israeli Shekel", symbol: "₪" },
+    { code: "TRY", name: "Turkish Lira", symbol: "₺" }, { code: "RUB", name: "Russian Ruble", symbol: "₽" }, { code: "CHF", name: "Swiss Franc", symbol: "CHF" },
+    { code: "SEK", name: "Swedish Krona", symbol: "kr" }, { code: "NOK", name: "Norwegian Krone", symbol: "kr" }, { code: "DKK", name: "Danish Krone", symbol: "kr" },
+    { code: "PLN", name: "Polish Zloty", symbol: "zł" }, { code: "BRL", name: "Brazilian Real", symbol: "R$" }, { code: "MXN", name: "Mexican Peso", symbol: "$" },
+    { code: "ARS", name: "Argentine Peso", symbol: "$" }, { code: "COP", name: "Colombian Peso", symbol: "$" },
+  ];
+  const CURRENCY_SYMBOLS = Object.fromEntries(CURRENCIES.map((c) => [c.code, c.symbol]));
+
+  function populateSelect(select, values, labelFn) {
+    values.forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = labelFn ? v.code : v;
+      opt.textContent = labelFn ? labelFn(v) : v;
+      select.appendChild(opt);
+    });
+  }
+  populateSelect($("itCountry"), COUNTRIES);
+  populateSelect($("itCurrency"), CURRENCIES, (c) => `${c.code} — ${c.name}`);
+  populateSelect($("pCountry"), COUNTRIES);
+  populateSelect($("pCurrency"), CURRENCIES, (c) => `${c.code} — ${c.name}`);
+
+  function fmtMoney(amount, code) {
+    const symbol = CURRENCY_SYMBOLS[code] || "";
+    const n = Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${symbol}${n}`;
+  }
+
+  /* ---------- withdraw methods (icon boxes) ---------- */
+  const WITHDRAW_METHODS = [
+    { id: "paypal", name: "PayPal", grad: "from-[#003087] to-[#0070E0]",
+      icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M7 5h6.2c2.7 0 4.4 1.6 3.9 4.1-.5 2.9-2.7 4.4-5.5 4.4H9.4L8.6 18H5.8L7 5Z" fill="white"/><path d="M9.6 8h6c2.5 0 3.9 1.4 3.5 3.8-.5 2.6-2.5 3.9-5 3.9h-2.2l-.7 3.8H8.4L9.6 8Z" fill="white" fill-opacity=".55"/></svg>` },
+    { id: "cashapp", name: "Cash App", grad: "from-[#00C244] to-[#00D95F]",
+      icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 6.5c-2 0-3.2.9-3.2 2.2 0 3.1 5.8 1.9 5.8 5 0 1.3-1.3 2.2-3.1 2.2-1.5 0-2.7-.6-3.4-1.6M12 5v1.3M12 17.7V19" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
+    { id: "bank", name: "Bank account", grad: "from-violet to-violetdeep",
+      icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6M4 10v9M20 10v9M8 10v9M16 10v9M2 20h20"/></svg>` },
+  ];
+  function renderWithdrawMethodGrid() {
+    const grid = $("withdrawMethodGrid");
+    grid.innerHTML = WITHDRAW_METHODS.map((m, i) => `
+      <button type="button" data-withdraw-tab="${m.id}" class="withdraw-method-btn rounded-2xl p-3 sm:p-4 flex flex-col items-center gap-2 text-center transition border-2 ${i === 0 ? "border-violet" : "border-transparent"} surface">
+        <span class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${m.grad} flex items-center justify-center flex-shrink-0">${m.icon}</span>
+        <span class="text-[12px] sm:text-[13px] font-semibold truncate w-full">${m.name}</span>
+      </button>
+    `).join("");
+    grid.querySelectorAll("[data-withdraw-tab]").forEach((btn) => btn.addEventListener("click", () => selectWithdrawTab(btn.dataset.withdrawTab)));
+  }
+  function selectWithdrawTab(tab) {
+    document.querySelectorAll(".withdraw-method-btn").forEach((b) => {
+      b.classList.toggle("border-violet", b.dataset.withdrawTab === tab);
+      b.classList.toggle("border-transparent", b.dataset.withdrawTab !== tab);
+    });
+    $("paypalForm").classList.toggle("hidden", tab !== "paypal");
+    $("cashappForm").classList.toggle("hidden", tab !== "cashapp");
+    $("bankWithdrawForm").classList.toggle("hidden", tab !== "bank");
+  }
+
+  /* ---------- crypto coins (deposit) ---------- */
+  const DEFAULT_CRYPTO_COINS = [
+    { id: "btc", name: "Bitcoin", ticker: "BTC", network: "Bitcoin (BTC) network", address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", grad: "from-[#F7931A] to-[#FFB74D]", warning: "Only send BTC to this address on the Bitcoin network." },
+    { id: "eth", name: "Ethereum", ticker: "ETH", network: "Ethereum (ERC-20) network", address: "0x71C7656EC7ab88b098defB751B7401B5f6d8976", grad: "from-[#627EEA] to-[#8AA6FF]", warning: "Only send ETH or ERC-20 tokens to this address." },
+    { id: "usdt", name: "Tether", ticker: "USDT", network: "Tether (TRC-20) network", address: "TXYZbc1a2b3c4d5e6f7g8h9i0jklmnopqrst", grad: "from-[#26A17B] to-[#5FD6AE]", warning: "Only send USDT on the TRC-20 network to this address." },
+    { id: "usdc", name: "USD Coin", ticker: "USDC", network: "USD Coin (ERC-20) network", address: "0x9aB4c31e2F1d8B4A6C0e5D7f3A2B1c9D8e7F6a5B", grad: "from-[#2775CA] to-[#7FB9F2]", warning: "Only send USDC or ERC-20 tokens to this address." },
+  ];
+  // Replaced at runtime once admin-configured deposit settings load from Firebase (settings/deposit).
+  // Falls back to the defaults above if the admin hasn't configured anything yet.
+  let CRYPTO_COINS = DEFAULT_CRYPTO_COINS;
+  let selectedCoin = null;
+  let depositSettings = {};
+  let settingsListenerAttached = false;
+  function renderCryptoCoinGrid() {
+    const grid = $("cryptoCoinGrid");
+    grid.innerHTML = CRYPTO_COINS.map((c) => `
+      <button type="button" data-coin="${c.id}" class="crypto-coin-btn rounded-2xl p-3 flex flex-col items-center gap-2 text-center border-2 border-transparent surface-2 transition">
+        <span class="w-10 h-10 rounded-full bg-gradient-to-br ${c.grad} flex items-center justify-center text-white font-display font-bold text-[12px] flex-shrink-0">${c.ticker.slice(0,1)}</span>
+        <span class="text-[12px] font-semibold">${c.ticker}</span>
+      </button>
+    `).join("");
+    grid.querySelectorAll("[data-coin]").forEach((btn) => btn.addEventListener("click", () => selectCryptoCoin(btn.dataset.coin)));
+  }
+  function selectCryptoCoin(coinId) {
+    selectedCoin = CRYPTO_COINS.find((c) => c.id === coinId);
+    document.querySelectorAll(".crypto-coin-btn").forEach((b) => {
+      b.classList.toggle("border-violet", b.dataset.coin === coinId);
+      b.classList.toggle("border-transparent", b.dataset.coin !== coinId);
+    });
+    $("cryptoAddress").textContent = selectedCoin.address;
+    $("cryptoNetworkLabel").textContent = selectedCoin.name;
+    $("cryptoWarning").textContent = selectedCoin.warning;
+    $("cryptoQr").src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(selectedCoin.address)}`;
+    $("cryptoAddressBox").classList.remove("hidden");
+    $("cryptoDepositForm").classList.remove("hidden");
+  }
+  $("copyCryptoBtn").addEventListener("click", () => { if (selectedCoin) copyText(selectedCoin.address, "Address copied"); });
+
+  /* ---------- deposit tabs ---------- */
+  document.querySelectorAll("[data-deposit-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-deposit-tab]").forEach((b) => b.classList.toggle("active", b === btn));
+      $("depositBankPanel").classList.toggle("hidden", btn.dataset.depositTab !== "bank");
+      $("depositCryptoPanel").classList.toggle("hidden", btn.dataset.depositTab !== "crypto");
+    });
+  });
+  document.querySelectorAll(".copy-chip[data-copy-value]").forEach((btn) => btn.addEventListener("click", () => copyText(btn.dataset.copyValue, "Copied")));
+  $("copyDepAcctBtn").addEventListener("click", () => copyText($("depAcctNumber").textContent || "", "Account number copied"));
+  $("copyDepNameBtn").addEventListener("click", () => copyText($("depAcctName").textContent || "", "Copied"));
+  $("copyDepBankBtn").addEventListener("click", () => copyText($("depBankName").textContent || "", "Bank name copied"));
+
+  /* ---------- card types (colored) ---------- */
+  const CARD_TYPES = [
+    { id: "virtual", name: "Virtual Card", fee: 0, desc: "Instant virtual card for online payments.", grad: "from-violet via-[#8A7CF0] to-violetdeep" },
+    { id: "standard", name: "Standard Physical Debit", fee: 1500, desc: "Classic debit card, delivered in 5–7 business days.", grad: "from-[#2D2A3D] to-[#4A4560]" },
+    { id: "gold", name: "Gold Physical Debit", fee: 5000, desc: "Higher limits and premium perks.", grad: "from-[#C9962C] via-[#E9C46A] to-[#B8860B]" },
+    { id: "platinum", name: "Platinum Metal Card", fee: 15000, desc: "Metal card, highest limits, concierge support.", grad: "from-[#6E7681] via-[#B7BEC7] to-[#4A5058]" },
+  ];
+
+  function cardVisual(grad, name, holder, numberDisplay) {
+    return `
+      <div class="rounded-2xl p-5 text-white relative overflow-hidden bg-gradient-to-br ${grad} aspect-[1.586/1] flex flex-col justify-between shadow-lg">
+        <div class="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-white/10"></div>
+        <div class="absolute bottom-[-2rem] left-[-1rem] w-24 h-24 rounded-full bg-black/10"></div>
+        <div class="flex items-center justify-between relative z-10">
+          <span class="w-9 h-7 rounded-md bg-white/25"></span>
+          <span class="font-display font-bold text-[13px] tracking-wide">Violet</span>
+        </div>
+        <div class="relative z-10">
+          <p class="font-semibold text-[15px] sm:text-[16px] tracking-[0.12em] mb-2">${numberDisplay}</p>
+          <div class="flex items-end justify-between">
+            <div class="min-w-0">
+              <p class="text-white/60 text-[9.5px] uppercase tracking-wide">Card holder</p>
+              <p class="text-[12.5px] font-semibold truncate max-w-[160px]">${holder || "—"}</p>
+            </div>
+            <p class="text-[11px] font-semibold text-white/85">${name}</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderCardTypeGrid() {
+    const grid = $("cardTypeGrid");
+    grid.innerHTML = CARD_TYPES.map((c) => `
+      <div class="surface rounded-2xl p-4 flex flex-col gap-3">
+        ${cardVisual(c.grad, c.name, userData.fullName, "•••• •••• •••• ••••")}
+        <p class="help-sm">${c.desc}</p>
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-[14px]">${c.fee === 0 ? "Free" : fmtMoney(c.fee, userData.currency) + " fee"}</span>
+          <button class="btn-primary font-semibold text-[13px] py-2 px-4 rounded-full" data-apply-card="${c.id}">Apply</button>
+        </div>
+      </div>
+    `).join("");
+    grid.querySelectorAll("[data-apply-card]").forEach((btn) => {
+      btn.addEventListener("click", () => openCardApplyForm(btn.dataset.applyCard));
+    });
+  }
+
+  function renderIssuedCards() {
+    const issuedCards = userData.cards ? Object.values(userData.cards) : [];
+    const grid = $("issuedCardsGrid");
+    if (!issuedCards.length) { grid.innerHTML = ""; return; }
+    grid.innerHTML = issuedCards.map((c) => {
+      const type = CARD_TYPES.find((t) => t.id === c.typeId) || CARD_TYPES[0];
+      return `<div>${cardVisual(type.grad, c.typeName, userData.fullName, `•••• •••• •••• ${c.last4}`)}</div>`;
+    }).join("");
+  }
+
+  function openCardApplyForm(typeId) {
+    const type = CARD_TYPES.find((c) => c.id === typeId);
+    $("cardApplyForm").dataset.typeId = typeId;
+    $("cardApplyTypeName").textContent = `${type.name} (${type.fee === 0 ? "Free" : fmtMoney(type.fee, userData.currency)})`;
+    $("cardholderName").value = userData.fullName || "";
+    $("cardBillingAddress").value = [userData.address, userData.city, userData.state, userData.country].filter(Boolean).join(", ");
+    $("cardApplyForm").classList.remove("hidden");
+    $("cardApplyForm").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  $("cancelCardApplyBtn").addEventListener("click", () => $("cardApplyForm").classList.add("hidden"));
+
+  /* ---------- i18n ---------- */
+  const I18N = {
+    en: { "nav.transfer":"Transfer","nav.withdraw":"Withdraw","nav.deposit":"Deposit","nav.cards":"Cards","nav.loans":"Loans","nav.history":"History","nav.settings":"Settings","nav.profile":"Profile","nav.logout":"Log out",
+      "overview.title":"Overview","overview.balance":"Available balance","overview.recent":"Recent activity","overview.viewAll":"View all","overview.empty":"No activity yet.",
+      "deposit.title":"Deposit","deposit.sub":"Fund your account via bank transfer or crypto.","deposit.bankTab":"Bank transfer","deposit.cryptoTab":"Crypto",
+      "deposit.yourDetails":"Your account details","deposit.bankHelp":"Send funds to this account, then confirm below.","deposit.bankNameLbl":"Bank name",
+      "deposit.acctNumLbl":"Account number","deposit.acctNameLbl":"Account name","deposit.currencyLbl":"Currency","deposit.confirmTitle":"Already sent the funds?",
+      "deposit.amountSent":"Amount deposited","deposit.ref":"Reference / sender name (optional)","deposit.done":"I've made this deposit",
+      "deposit.selectCoin":"Select a coin","deposit.cryptoHelp":"Send the exact amount to the address below, then confirm.","deposit.walletAddress":"wallet address",
+      "deposit.amountSentUsd":"Amount deposited (USD equivalent)","deposit.txHash":"Transaction hash (optional)","deposit.history":"Deposit history",
+      "transfer.sub":"Send money locally or internationally.","transfer.local":"Local transfer","transfer.intl":"International transfer","transfer.bankName":"Recipient bank name",
+      "transfer.acctNum":"Recipient account number","transfer.acctName":"Recipient account name","transfer.amount":"Amount","transfer.narration":"Narration (optional)",
+      "transfer.send":"Send transfer","transfer.recName":"Recipient full name","transfer.recCountry":"Recipient country","transfer.swift":"SWIFT / BIC code",
+      "transfer.iban":"IBAN / account number","transfer.destCurrency":"Destination currency","transfer.purpose":"Purpose of transfer","transfer.sendIntl":"Send international transfer",
+      "transfer.history":"Transfer history","transfer.p1":"Family support","transfer.p2":"Business payment","transfer.p3":"Education","transfer.p4":"Other",
+      "withdraw.sub":"Cash out to PayPal, Cash App, or your bank.","withdraw.bank":"Bank account","withdraw.request":"Request withdrawal","withdraw.history":"Withdrawal history",
+      "cards.sub":"Apply for a virtual or physical card.","cards.apply":"Apply for card","cards.submitApp":"Submit application","cards.yours":"Your cards & applications","cards.empty":"No cards yet.",
+      "loans.sub":"Apply for a loan — funds arrive once approved.","loans.amount":"Loan amount","loans.purpose":"Purpose","loans.duration":"Duration","loans.income":"Monthly income (optional)",
+      "loans.apply":"Apply for loan","loans.history":"Loan history","loans.p1":"Business","loans.p2":"Education","loans.p3":"Medical","loans.p4":"Personal",
+      "history.title":"Transaction History","history.sub":"Every transaction on your account, from first to most recent.","history.filterType":"Type","history.filterStatus":"Status",
+      "history.allTypes":"All types","history.tDeposit":"Deposits","history.tTransfer":"Transfers","history.tWithdrawal":"Withdrawals","history.tCard":"Card applications",
+      "history.tLoan":"Loan applications","history.tAdjustment":"Account adjustments","history.allStatuses":"All statuses","history.stPending":"Pending","history.stApproved":"Approved","history.stRejected":"Rejected",
+      "settings.sub":"Personalize how your dashboard looks and reads.","settings.theme":"Appearance","settings.light":"Light","settings.dark":"Dark","settings.font":"Font",
+      "settings.language":"Language","settings.pin":"Transaction PIN","profile.sub":"Your personal and account details.","common.select":"Select","common.cancel":"Cancel",
+      "common.edit":"Edit","common.save":"Save changes" },
+    fr: { "nav.transfer":"Transfert","nav.withdraw":"Retrait","nav.deposit":"Dépôt","nav.cards":"Cartes","nav.loans":"Prêts","nav.history":"Historique","nav.settings":"Paramètres","nav.profile":"Profil","nav.logout":"Déconnexion",
+      "overview.title":"Aperçu","overview.balance":"Solde disponible","overview.recent":"Activité récente","overview.viewAll":"Tout voir","overview.empty":"Aucune activité pour le moment.",
+      "transfer.sub":"Envoyez de l'argent localement ou à l'international.","transfer.local":"Transfert local","transfer.intl":"Transfert international","transfer.bankName":"Nom de la banque du destinataire",
+      "transfer.acctNum":"Numéro de compte du destinataire","transfer.acctName":"Nom du compte du destinataire","transfer.amount":"Montant","transfer.narration":"Motif (facultatif)",
+      "transfer.send":"Envoyer le transfert","transfer.recName":"Nom complet du destinataire","transfer.recCountry":"Pays du destinataire","transfer.swift":"Code SWIFT / BIC",
+      "transfer.iban":"IBAN / numéro de compte","transfer.destCurrency":"Devise de destination","transfer.purpose":"Motif du transfert","transfer.sendIntl":"Envoyer le transfert international",
+      "transfer.history":"Historique des transferts","transfer.p1":"Soutien familial","transfer.p2":"Paiement professionnel","transfer.p3":"Éducation","transfer.p4":"Autre",
+      "withdraw.sub":"Retirez vers PayPal, Cash App ou votre banque.","withdraw.bank":"Compte bancaire","withdraw.request":"Demander un retrait","withdraw.history":"Historique des retraits",
+      "cards.sub":"Demandez une carte virtuelle ou physique.","cards.apply":"Demander une carte","cards.submitApp":"Soumettre la demande","cards.yours":"Vos cartes et demandes","cards.empty":"Aucune carte pour le moment.",
+      "loans.sub":"Demandez un prêt — les fonds arrivent une fois approuvés.","loans.amount":"Montant du prêt","loans.purpose":"Motif","loans.duration":"Durée","loans.income":"Revenu mensuel (facultatif)",
+      "loans.apply":"Demander un prêt","loans.history":"Historique des prêts","loans.p1":"Affaires","loans.p2":"Éducation","loans.p3":"Médical","loans.p4":"Personnel",
+      "history.title":"Historique des transactions","history.sub":"Chaque transaction de votre compte, de la première à la plus récente.","history.filterType":"Type","history.filterStatus":"Statut",
+      "history.allTypes":"Tous les types","history.tDeposit":"Dépôts","history.tTransfer":"Transferts","history.tWithdrawal":"Retraits","history.tCard":"Demandes de carte",
+      "history.tLoan":"Demandes de prêt","history.tAdjustment":"Ajustements de compte","history.allStatuses":"Tous les statuts","history.stPending":"En attente","history.stApproved":"Approuvé","history.stRejected":"Rejeté",
+      "settings.sub":"Personnalisez l'apparence de votre tableau de bord.","settings.theme":"Apparence","settings.light":"Clair","settings.dark":"Sombre","settings.font":"Police",
+      "settings.language":"Langue","settings.pin":"Code PIN de transaction","profile.sub":"Vos informations personnelles et de compte.","common.select":"Sélectionner","common.cancel":"Annuler",
+      "common.edit":"Modifier","common.save":"Enregistrer" },
+    yo: { "nav.transfer":"Fífi Ránṣẹ́","nav.withdraw":"Yiyọ Owó","nav.deposit":"Ìsanwó","nav.cards":"Káàdì","nav.loans":"Awin","nav.history":"Ìtàn","nav.settings":"Ètò","nav.profile":"Àkọsílẹ̀","nav.logout":"Jáde",
+      "overview.title":"Àkọ́kọ́","overview.balance":"Owó tó wà","overview.recent":"Ìṣe àìpẹ́","overview.viewAll":"Wo gbogbo","overview.empty":"Kò sí ìṣe kankan.",
+      "transfer.local":"Fífirán inú ìlú","transfer.intl":"Fífirán òkèèrè","transfer.amount":"Iye owó","transfer.send":"Fi ránṣẹ́","transfer.sendIntl":"Fi ránṣẹ́ sí òkèèrè",
+      "transfer.history":"Ìtàn ìfiránṣẹ́","withdraw.request":"Béèrè yíyọ owó","withdraw.history":"Ìtàn yíyọ owó","cards.apply":"Bèrè fún káàdì","cards.yours":"Káàdì rẹ",
+      "cards.empty":"Kò sí káàdì bẹ́ẹ̀","loans.apply":"Bèrè fún awin","loans.history":"Ìtàn awin",
+      "history.title":"Ìtàn Ìṣòwò","history.filterType":"Irú","history.filterStatus":"Ipò","history.allTypes":"Gbogbo irú","history.allStatuses":"Gbogbo ipò",
+      "settings.theme":"Ìrísí","settings.light":"Ìmọ́lẹ̀","settings.dark":"Òkùnkùn",
+      "settings.font":"Fọ́ọ̀nùtù","settings.language":"Èdè","common.cancel":"Fagilé","common.edit":"Ṣàtúnṣe","common.save":"Fi pamọ́" },
+    ha: { "nav.transfer":"Canja wuri","nav.withdraw":"Cirewa","nav.deposit":"Ajiya","nav.cards":"Katunan","nav.loans":"Lamuni","nav.history":"Tarihi","nav.settings":"Saituna","nav.profile":"Bayanan Martaba","nav.logout":"Fita",
+      "overview.title":"Bayyani","overview.balance":"Ma'auni da ake da shi","overview.recent":"Ayyukan kwanan nan","overview.viewAll":"Duba duka","overview.empty":"Babu ayyuka tukuna.",
+      "transfer.local":"Canja wuri na cikin gida","transfer.intl":"Canja wurin kasa da kasa","transfer.amount":"Adadi","transfer.send":"Aika canja wuri","transfer.sendIntl":"Aika canja wurin kasa da kasa",
+      "transfer.history":"Tarihin canja wuri","withdraw.request":"Nemi cirewa","withdraw.history":"Tarihin cirewa","cards.apply":"Nemi katin","cards.yours":"Katunanku",
+      "cards.empty":"Babu katin tukuna","loans.apply":"Nemi lamuni","loans.history":"Tarihin lamuni",
+      "history.title":"Tarihin Ma'amaloli","history.filterType":"Iri","history.filterStatus":"Matsayi","history.allTypes":"Duk nau'i","history.allStatuses":"Duk matsayi",
+      "settings.theme":"Kamanni","settings.light":"Haske","settings.dark":"Duhu",
+      "settings.font":"Rubutu","settings.language":"Harshe","common.cancel":"Soke","common.edit":"Gyara","common.save":"Ajiye" },
+    ig: { "nav.transfer":"Ntugharị","nav.withdraw":"Ndọpụta","nav.deposit":"Nkwụnye ego","nav.cards":"Kaadị","nav.loans":"Mbinye Ego","nav.history":"Akụkọ","nav.settings":"Ntọala","nav.profile":"Profaịlụ","nav.logout":"Pụọ",
+      "overview.title":"Nchịkọta","overview.balance":"Ego dị","overview.recent":"Omume ọhụrụ","overview.viewAll":"Lee ihe niile","overview.empty":"Enweghị omume ọ bụla.",
+      "transfer.local":"Ntugharị nke obodo","transfer.intl":"Ntugharị mba ụwa","transfer.amount":"Ọnụọgụ","transfer.send":"Zipu ntugharị","transfer.sendIntl":"Zipu ntugharị mba ụwa",
+      "transfer.history":"Akụkọ ntugharị","withdraw.request":"Rịọ ndọpụta","withdraw.history":"Akụkọ ndọpụta","cards.apply":"Rịọ maka kaadị","cards.yours":"Kaadị gị",
+      "cards.empty":"Enweghị kaadị ka ugbu a","loans.apply":"Rịọ maka mbinye ego","loans.history":"Akụkọ mbinye ego",
+      "history.title":"Akụkọ Azụmahịa","history.filterType":"Ụdị","history.filterStatus":"Ọkwa","history.allTypes":"Ụdị niile","history.allStatuses":"Ọkwa niile",
+      "settings.theme":"Ọdịdị","settings.light":"Ìhè","settings.dark":"Ọchịchịrị",
+      "settings.font":"Ụdị mkpụrụedemede","settings.language":"Asụsụ","common.cancel":"Kagbuo","common.edit":"Dezie","common.save":"Chekwaa" },
+  };
+
+  function applyLanguage(lang) {
+    const dict = I18N[lang] || I18N.en;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const key = el.dataset.i18n;
+      if (dict[key]) el.textContent = dict[key];
+    });
+    applyDepositSettingsToUI();
+  }
+
+  /* ---------- admin-configured deposit settings (bank name/help text/account number/name/currency + crypto coins) ---------- */
+  // Admin-configured settings/deposit/bank values win over the user's own profile data;
+  // if the admin hasn't filled a field in yet, we fall back to the user's profile so the
+  // panel never shows a blank dash where a real value could go.
+  function applyDepositSettingsToUI() {
+    const bank = (depositSettings && depositSettings.bank) || {};
+    $("depBankName").textContent = bank.bankName || "Violet Bank";
+    if (bank.helpText) $("depositBankHelpText").textContent = bank.helpText;
+
+    const acctNumber = bank.accountNumber || userData.accountNumber || "";
+    $("depAcctNumber").textContent = acctNumber ? acctNumber.replace(/(\d{4})(?=\d)/g, "$1 ").trim() : "—";
+    $("depAcctName").textContent = bank.accountName || userData.fullName || "—";
+    $("depCurrency").textContent = bank.currency || userData.currency || "—";
+  }
+  function refreshCryptoCoinsFromSettings() {
+    const configured = depositSettings.crypto && depositSettings.crypto.coins;
+    const palette = ["from-[#F7931A] to-[#FFB74D]", "from-[#627EEA] to-[#8AA6FF]", "from-[#26A17B] to-[#5FD6AE]", "from-[#2775CA] to-[#7FB9F2]", "from-violet to-violetdeep", "from-[#E1306C] to-[#F77737]", "from-[#00C244] to-[#00D95F]"];
+    if (configured && Object.keys(configured).length) {
+      const enabledCoins = Object.entries(configured)
+        .filter(([id, c]) => c && c.enabled !== false && c.address)
+        .map(([id, c], i) => ({
+          id,
+          name: c.name || c.ticker || id.toUpperCase(),
+          ticker: c.ticker || id.toUpperCase(),
+          network: c.network || `${c.ticker || id.toUpperCase()} network`,
+          address: c.address,
+          grad: palette[i % palette.length],
+          warning: c.warning || `Only send ${c.ticker || ""} to this address.`,
+        }));
+      CRYPTO_COINS = enabledCoins.length ? enabledCoins : DEFAULT_CRYPTO_COINS;
+    } else {
+      CRYPTO_COINS = DEFAULT_CRYPTO_COINS;
+    }
+    // A coin the user had selected may no longer exist/be visible — reset the picker.
+    selectedCoin = null;
+    $("cryptoAddressBox").classList.add("hidden");
+    $("cryptoDepositForm").classList.add("hidden");
+    renderCryptoCoinGrid();
+  }
+
+  /* ---------- theme / font / settings ---------- */
+  function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.querySelectorAll(".theme-btn").forEach((b) => b.classList.toggle("active", b.dataset.theme === theme));
+  }
+  function applyFont(font) {
+    document.documentElement.style.setProperty("--font-ui", `'${font}', sans-serif`);
+    document.documentElement.style.setProperty("--font-display", `'${font}', sans-serif`);
+    $("fontSelect").value = font;
+  }
+  $("fontSelect").addEventListener("change", (e) => { applyFont(e.target.value); saveSettings({ font: e.target.value }); });
+  $("languageSelect").addEventListener("change", (e) => { applyLanguage(e.target.value); saveSettings({ language: e.target.value }); });
+  document.querySelectorAll(".theme-btn").forEach((btn) => {
+    btn.addEventListener("click", () => { applyTheme(btn.dataset.theme); saveSettings({ theme: btn.dataset.theme }); });
+  });
+  function saveSettings(partial) {
+    if (!currentUid) return;
+    update(ref(db, `users/${currentUid}/settings`), partial).catch(() => {});
+  }
+
+  /* ---------- sidebar nav / drawer ---------- */
+  const sectionIds = ["overview", "deposit", "transfer", "withdraw", "cards", "loans", "history", "settings", "profile"];
+  function goToSection(name) {
+    sectionIds.forEach((s) => $(`sec-${s}`).classList.toggle("hidden", s !== name));
+    document.querySelectorAll(".nav-item[data-section]").forEach((el) => el.classList.toggle("active", el.dataset.section === name));
+    const titles = { overview: "Overview", deposit: "Deposit", transfer: "Transfer", withdraw: "Withdraw", cards: "Cards", loans: "Loans", history: "Transaction History", settings: "Settings", profile: "Profile" };
+    $("mobileTitle").textContent = titles[name] || "Overview";
+    closeDrawer();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.querySelectorAll(".nav-item[data-section]").forEach((el) => el.addEventListener("click", () => goToSection(el.dataset.section)));
+  document.querySelectorAll("[data-goto]").forEach((el) => el.addEventListener("click", () => goToSection(el.dataset.goto)));
+
+  function openDrawer() { $("sidebar").classList.remove("-translate-x-full"); $("drawerBackdrop").classList.remove("hidden"); }
+  function closeDrawer() { $("sidebar").classList.add("-translate-x-full"); $("drawerBackdrop").classList.add("hidden"); }
+  $("openDrawerBtn").addEventListener("click", openDrawer);
+  $("closeDrawerBtn").addEventListener("click", closeDrawer);
+  $("drawerBackdrop").addEventListener("click", closeDrawer);
+  // On large screens the sidebar should never be translated off-canvas
+  function syncSidebarForViewport() {
+    if (window.innerWidth >= 1024) $("sidebar").classList.remove("-translate-x-full");
+    else $("sidebar").classList.add("-translate-x-full");
+  }
+  window.addEventListener("resize", syncSidebarForViewport);
+  syncSidebarForViewport();
+
+  /* ---------- transfer tabs ---------- */
+  document.querySelectorAll("[data-transfer-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-transfer-tab]").forEach((b) => b.classList.toggle("active", b === btn));
+      $("localTransferForm").classList.toggle("hidden", btn.dataset.transferTab !== "local");
+      $("intlTransferForm").classList.toggle("hidden", btn.dataset.transferTab !== "intl");
+    });
+  });
+
+  renderWithdrawMethodGrid();
+  renderCryptoCoinGrid();
+
+  /* ---------- transaction history filters ---------- */
+  $("historyTypeFilter").addEventListener("change", renderHistoryList);
+  $("historyStatusFilter").addEventListener("change", renderHistoryList);
+
+  /* ---------- PIN hashing + modal ---------- */
+  async function sha256Hex(text) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  function wirePinBoxes(selector) {
+    const boxes = Array.from(document.querySelectorAll(selector));
+    boxes.forEach((box, i) => {
+      box.addEventListener("input", () => {
+        box.value = box.value.replace(/[^0-9]/g, "").slice(0, 1);
+        if (box.value && boxes[i + 1]) boxes[i + 1].focus();
+      });
+      box.addEventListener("keydown", (e) => { if (e.key === "Backspace" && !box.value && boxes[i - 1]) boxes[i - 1].focus(); });
+    });
+  }
+  wirePinBoxes(".pin-digit");
+  wirePinBoxes(".pin-confirm-digit");
+  function readPinBoxes(selector) { return Array.from(document.querySelectorAll(selector)).map((b) => b.value).join(""); }
+  function clearPinBoxes() { document.querySelectorAll(".pin-digit,.pin-confirm-digit").forEach((b) => (b.value = "")); }
+
+  let pinResolveCallback = null;
+  function requireTransactionPin(onVerified) {
+    pinResolveCallback = onVerified;
+    const hasPin = !!userData.pinHash;
+    $("pinModalTitle").textContent = hasPin ? "Enter your transaction PIN" : "Create your transaction PIN";
+    $("pinModalSub").textContent = hasPin ? "Confirm this action with your 4-digit PIN." : "You'll use this to approve transfers and withdrawals.";
+    $("pinConfirmRow").classList.toggle("hidden", hasPin);
+    $("pinConfirmRow").classList.toggle("flex", !hasPin);
+    $("pinError").classList.add("hidden");
+    clearPinBoxes();
+    $("pinModal").classList.remove("hidden");
+    document.querySelector(".pin-digit").focus();
+  }
+  $("pinCancelBtn").addEventListener("click", () => { $("pinModal").classList.add("hidden"); pinResolveCallback = null; });
+  $("pinSubmitBtn").addEventListener("click", async () => {
+    const pin = readPinBoxes(".pin-digit");
+    if (pin.length !== 4) { $("pinError").textContent = "Enter all 4 digits."; $("pinError").classList.remove("hidden"); return; }
+
+    if (!userData.pinHash) {
+      const confirmPin = readPinBoxes(".pin-confirm-digit");
+      if (confirmPin.length !== 4 || confirmPin !== pin) { $("pinError").textContent = "PINs don't match."; $("pinError").classList.remove("hidden"); return; }
+      const hash = await sha256Hex(pin);
+      await update(ref(db, `users/${currentUid}`), { pinHash: hash });
+      userData.pinHash = hash;
+      showToast("Transaction PIN created", "mint");
+    } else {
+      const hash = await sha256Hex(pin);
+      if (hash !== userData.pinHash) { $("pinError").textContent = "Incorrect PIN."; $("pinError").classList.remove("hidden"); shakeEl($("pinModal").firstElementChild); return; }
+    }
+
+    $("pinModal").classList.add("hidden");
+    const cb = pinResolveCallback;
+    pinResolveCallback = null;
+    if (cb) cb();
+  });
+  $("resetPinBtn").addEventListener("click", () => {
+    requireTransactionPin(() => {
+      update(ref(db, `users/${currentUid}`), { pinHash: null }).then(() => {
+        userData.pinHash = null;
+        showToast("PIN cleared — set a new one on your next transaction", "mint");
+        updatePinStatusText();
+      });
+    });
+  });
+  function updatePinStatusText() {
+    $("pinStatusText").textContent = userData.pinHash ? "Your transaction PIN is set." : "Not set yet — you'll be asked to create one on your first transfer or withdrawal.";
+  }
+
+  /* ---------- transactions: create + render ---------- */
+  async function createTransaction(payload) {
+    const txRef = push(ref(db, "transactions"));
+    await set(txRef, {
+      uid: currentUid,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      ...payload,
+    });
+    return txRef.key;
+  }
+
+  function statusPill(status) {
+    const map = { pending: ["pill-pending", "Pending"], approved: ["pill-approved", "Approved"], rejected: ["pill-rejected", "Rejected"] };
+    const [cls, label] = map[status] || map.pending;
+    return `<span class="pill ${cls}">${label}</span>`;
+  }
+
+  // Friendly, user-facing description for a transaction row.
+  // Admin balance adjustments should read as a plain credit/debit, never "Admin credit/debit".
+  function displayDescription(tx) {
+    if (tx.type === "admin_adjustment") {
+      return tx.direction === "credit" ? "Account credited" : "Account debited";
+    }
+    return tx.description || tx.type;
+  }
+
+  function renderTxList(container, list, emptyKey) {
+    if (!list.length) { container.innerHTML = `<p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="${emptyKey}">No activity yet.</p>`; applyLanguage(currentLang()); return; }
+    container.innerHTML = list.map((tx) => `
+      <div class="p-4 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="font-semibold text-[14px] truncate">${displayDescription(tx)}</p>
+          <p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-semibold text-[14px] mb-1">${tx.amount != null ? (tx.direction === "credit" ? "+" : "−") + fmtMoney(tx.amount, tx.currency || userData.currency) : ""}</p>
+          ${statusPill(tx.status)}
+        </div>
+      </div>
+    `).join("");
+  }
+  function currentLang() { return $("languageSelect").value || "en"; }
+
+  // Type filter used only by the full Transaction History page.
+  function matchesHistoryTypeFilter(tx, filter) {
+    if (filter === "all") return true;
+    if (filter === "deposit") return !!(tx.type && tx.type.startsWith("deposit"));
+    if (filter === "transfer") return !!(tx.type && tx.type.startsWith("transfer"));
+    if (filter === "withdrawal") return tx.type === "withdrawal";
+    if (filter === "card_application") return tx.type === "card_application";
+    if (filter === "loan_application") return tx.type === "loan_application";
+    if (filter === "admin_adjustment") return tx.type === "admin_adjustment";
+    return true;
+  }
+  function renderHistoryList() {
+    const typeFilter = $("historyTypeFilter").value;
+    const statusFilter = $("historyStatusFilter").value;
+    const filtered = allTx.filter((tx) => matchesHistoryTypeFilter(tx, typeFilter) && (statusFilter === "all" || tx.status === statusFilter));
+    renderTxList($("fullHistoryList"), filtered, "overview.empty");
+  }
+
+  function refreshAllLists() {
+    const byType = (t) => allTx.filter((tx) => tx.type === t || (t === "transfer" && tx.type?.startsWith("transfer")) || (t === "deposit" && tx.type?.startsWith("deposit")));
+    // Recent activity on the Overview page is capped to the 5 most recent items;
+    // older ones drop off here but remain fully available in Transaction History.
+    renderTxList($("recentActivity"), allTx.slice(0, 5), "overview.empty");
+    renderTxList($("depositHistory"), byType("deposit"), "overview.empty");
+    renderTxList($("transferHistory"), byType("transfer"), "overview.empty");
+    renderTxList($("withdrawHistory"), byType("withdrawal"), "overview.empty");
+    renderTxList($("loansHistory"), byType("loan_application"), "overview.empty");
+    renderHistoryList();
+
+    const cardTx = byType("card_application");
+    $("cardsHistory").innerHTML = cardTx.length ? cardTx.map((tx) => `
+        <div class="p-4 flex items-center justify-between gap-3">
+          <div><p class="font-semibold text-[14px]">${displayDescription(tx)}</p><p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p></div>
+          ${statusPill(tx.status)}
+        </div>`).join("") : `<p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="cards.empty">No cards yet.</p>`;
+    renderIssuedCards();
+    applyLanguage(currentLang());
+  }
+
+  /* ---------- form submit handlers ---------- */
+  function validateAmount(inputId, errorId, balance) {
+    const val = Number($(inputId).value);
+    if (!val || val <= 0) { setFieldErr(errorId, "Enter a valid amount."); return null; }
+    if (val > balance) { setFieldErr(errorId, "This exceeds your available balance."); return null; }
+    setFieldErr(errorId, "");
+    return val;
+  }
+  function setFieldErr(errorId, msg) {
+    const el = $(errorId);
+    if (msg) { el.textContent = msg; el.classList.remove("hidden"); } else { el.classList.add("hidden"); }
+  }
+
+  /* ---------- deposit forms (credit, pending admin approval) ---------- */
+  $("bankDepositForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const amount = Number($("bdAmount").value);
+    if (!amount || amount <= 0) { setFieldErr("bdAmountError", "Enter a valid amount."); return; }
+    setFieldErr("bdAmountError", "");
+    await createTransaction({
+      type: "deposit_bank", direction: "credit", amount, currency: userData.currency,
+      description: "Bank transfer deposit",
+      details: { reference: $("bdRef").value.trim() },
+    });
+    $("bankDepositForm").reset();
+    setAlert($("depositAlert"), "Deposit submitted — pending admin approval.", "mint");
+    showToast("Deposit submitted", "mint");
+  });
+
+  $("cryptoDepositForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!selectedCoin) { setAlert($("depositAlert"), "Select a coin first.", "rose"); return; }
+    const amount = Number($("cdAmount").value);
+    if (!amount || amount <= 0) { setFieldErr("cdAmountError", "Enter a valid amount."); return; }
+    setFieldErr("cdAmountError", "");
+    await createTransaction({
+      type: "deposit_crypto", direction: "credit", amount, currency: "USD",
+      description: `${selectedCoin.name} (${selectedCoin.ticker}) deposit`,
+      details: { coin: selectedCoin.ticker, address: selectedCoin.address, txHash: $("cdHash").value.trim() },
+    });
+    $("cryptoDepositForm").reset();
+    setAlert($("depositAlert"), "Deposit submitted — pending admin approval.", "mint");
+    showToast("Deposit submitted", "mint");
+  });
+
+  $("localTransferForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = validateAmount("ltAmount", "ltAmountError", userData.balance || 0);
+    if (!amount) return;
+    requireTransactionPin(async () => {
+      await createTransaction({
+        type: "transfer_local", direction: "debit", amount, currency: userData.currency,
+        description: `Local transfer to ${$("ltAccountName").value.trim()}`,
+        details: { bankName: $("ltBankName").value.trim(), accountNumber: $("ltAccountNumber").value.trim(), accountName: $("ltAccountName").value.trim(), narration: $("ltNarration").value.trim() },
+      });
+      $("localTransferForm").reset();
+      setAlert($("transferAlert"), "Transfer submitted — pending admin approval.", "mint");
+      showToast("Transfer submitted", "mint");
+    });
+  });
+
+  $("intlTransferForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = validateAmount("itAmount", "itAmountError", userData.balance || 0);
+    if (!amount) return;
+    requireTransactionPin(async () => {
+      await createTransaction({
+        type: "transfer_international", direction: "debit", amount, currency: userData.currency,
+        description: `International transfer to ${$("itName").value.trim()} (${$("itCountry").value})`,
+        details: { recipientName: $("itName").value.trim(), recipientCountry: $("itCountry").value, bankName: $("itBankName").value.trim(), swift: $("itSwift").value.trim(), accountNumber: $("itAccountNumber").value.trim(), destCurrency: $("itCurrency").value, purpose: $("itPurpose").value },
+      });
+      $("intlTransferForm").reset();
+      setAlert($("transferAlert"), "International transfer submitted — pending admin approval.", "mint");
+      showToast("Transfer submitted", "mint");
+    });
+  });
+
+  $("paypalForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = validateAmount("ppAmount", "ppAmountError", userData.balance || 0);
+    if (!amount) return;
+    requireTransactionPin(async () => {
+      await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to PayPal", details: { method: "paypal", paypalEmail: $("ppEmail").value.trim() } });
+      $("paypalForm").reset();
+      setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
+      showToast("Withdrawal requested", "mint");
+    });
+  });
+  $("cashappForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = validateAmount("caAmount", "caAmountError", userData.balance || 0);
+    if (!amount) return;
+    requireTransactionPin(async () => {
+      await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to Cash App", details: { method: "cashapp", cashtag: $("caTag").value.trim() } });
+      $("cashappForm").reset();
+      setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
+      showToast("Withdrawal requested", "mint");
+    });
+  });
+  $("bankWithdrawForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = validateAmount("bwAmount", "bwAmountError", userData.balance || 0);
+    if (!amount) return;
+    requireTransactionPin(async () => {
+      await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to bank account", details: { method: "bank", accountHolderName: $("bwName").value.trim(), bankName: $("bwBank").value.trim(), accountNumber: $("bwAccountNumber").value.trim(), routing: $("bwRouting").value.trim() } });
+      $("bankWithdrawForm").reset();
+      setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
+      showToast("Withdrawal requested", "mint");
+    });
+  });
+
+  $("cardApplyForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const typeId = $("cardApplyForm").dataset.typeId;
+    const type = CARD_TYPES.find((c) => c.id === typeId);
+    if (type.fee > (userData.balance || 0)) { setAlert($("cardsAlert"), "Your balance may not cover this card's fee — the fee is charged when your card is approved.", "rose"); }
+    await createTransaction({
+      type: "card_application", direction: "debit", amount: type.fee, currency: userData.currency,
+      description: `${type.name} application`,
+      details: { cardTypeId: type.id, cardTypeName: type.name, cardholderName: $("cardholderName").value.trim(), billingAddress: $("cardBillingAddress").value.trim() },
+    });
+    $("cardApplyForm").classList.add("hidden");
+    $("cardApplyForm").reset();
+    setAlert($("cardsAlert"), "Card application submitted — pending admin approval.", "mint");
+    showToast("Card application submitted", "mint");
+  });
+
+  $("loanForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const amount = Number($("loanAmount").value);
+    if (!amount || amount <= 0) { setAlert($("loansAlert"), "Enter a valid loan amount.", "rose"); return; }
+    setAlert($("loansAlert"), "");
+    await createTransaction({
+      type: "loan_application", direction: "credit", amount, currency: userData.currency,
+      description: `Loan application (${$("loanDuration").value} months)`,
+      details: { purpose: $("loanPurpose").value, durationMonths: Number($("loanDuration").value), monthlyIncome: Number($("loanIncome").value || 0) },
+    });
+    $("loanForm").reset();
+    setAlert($("loansAlert"), "Loan application submitted — pending admin approval.", "mint");
+    showToast("Loan application submitted", "mint");
+  });
+
+  /* ---------- profile ---------- */
+  $("editProfileBtn").addEventListener("click", () => {
+    const editing = $("editProfileBtn").dataset.editing === "true";
+    const fields = ["pFullName", "pPhone", "pDob", "pCountry", "pCurrency", "pAddress", "pCity", "pState", "pPostal", "pEmployment", "pOccupation"];
+    fields.forEach((id) => $(id).disabled = editing);
+    $("editProfileBtn").dataset.editing = String(!editing);
+    $("editProfileBtn").textContent = editing ? "Edit" : "Cancel";
+    $("profileSaveRow").classList.toggle("hidden", editing);
+  });
+  $("profileForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const updates = {
+      fullName: $("pFullName").value.trim(), phone: $("pPhone").value.trim(), dob: $("pDob").value,
+      country: $("pCountry").value, currency: $("pCurrency").value, address: $("pAddress").value.trim(),
+      city: $("pCity").value.trim(), state: $("pState").value.trim(), postalCode: $("pPostal").value.trim(),
+      employmentStatus: $("pEmployment").value, occupation: $("pOccupation").value.trim(),
+    };
+    await update(ref(db, `users/${currentUid}`), updates);
+    userData = { ...userData, ...updates };
+    setAlert($("profileAlert"), "Profile updated.", "mint");
+    showToast("Profile updated", "mint");
+    $("editProfileBtn").click();
+    paintOverviewFromUserData();
+  });
+  function fillProfileForm() {
+    $("pFullName").value = userData.fullName || "";
+    $("pEmail").value = userData.email || "";
+    $("pPhone").value = userData.phone || "";
+    $("pDob").value = userData.dob || "";
+    $("pCountry").value = userData.country || "";
+    $("pCurrency").value = userData.currency || "";
+    $("pAddress").value = userData.address || "";
+    $("pCity").value = userData.city || "";
+    $("pState").value = userData.state || "";
+    $("pPostal").value = userData.postalCode || "";
+    $("pEmployment").value = userData.employmentStatus || "";
+    $("pOccupation").value = userData.occupation || "";
+  }
+
+  /* ---------- overview painting ---------- */
+  function paintOverviewFromUserData() {
+    $("balanceDisplay").textContent = fmtMoney(userData.balance || 0, userData.currency);
+    $("acctNumberChip").textContent = userData.accountNumber ? userData.accountNumber.replace(/(\d{4})(?=\d)/g, "$1 ").trim() : "—";
+    $("currencyChip").textContent = userData.currency || "—";
+    $("greetingText").textContent = `Welcome back, ${(userData.fullName || "").split(" ")[0] || "there"}.`;
+    $("avatarChip").textContent = (userData.fullName || "?").trim().charAt(0).toUpperCase();
+    updatePinStatusText();
+    renderCardTypeGrid();
+    // Re-paint the Deposit page's account number/name/currency in case user data
+    // finished loading after the admin deposit settings listener already fired.
+    applyDepositSettingsToUI();
+  }
+
+  /* ---------- auth + data wiring ---------- */
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = "register.html"; return; }
+    currentUid = user.uid;
+
+    if (!settingsListenerAttached) {
+      settingsListenerAttached = true;
+      onValue(ref(db, "settings/deposit"), (snap) => {
+        depositSettings = snap.val() || {};
+        refreshCryptoCoinsFromSettings();
+        applyDepositSettingsToUI();
+      });
+    }
+
+    onValue(ref(db, `users/${currentUid}`), (snap) => {
+      userData = snap.val() || {};
+      $("authGate").classList.add("hidden");
+
+      if (userData.suspended) {
+        $("appShell").classList.add("hidden");
+        $("suspendedGate").classList.remove("hidden");
+        return;
+      }
+      $("suspendedGate").classList.add("hidden");
+      $("appShell").classList.remove("hidden");
+
+      paintOverviewFromUserData();
+      fillProfileForm();
+      const settings = userData.settings || {};
+      applyTheme(settings.theme || "light");
+      applyFont(settings.font || "Inter");
+      $("languageSelect").value = settings.language || "en";
+      applyLanguage(settings.language || "en");
+    });
+
+    const txQuery = query(ref(db, "transactions"), orderByChild("uid"), equalTo(currentUid));
+    onValue(txQuery, (snap) => {
+      const val = snap.val() || {};
+      allTx = Object.entries(val).map(([id, tx]) => ({ id, ...tx })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      refreshAllLists();
+    });
+  });
+
+  $("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
+  });
+  $("suspendedLogoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "register.html";
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — Violet Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg:     '#FAF8FF',
+          violet: '#6C5CE7',
+          violetdeep: '#4B3FBF',
+          peach:  '#FFB199',
+          mint:   '#7FD9BE',
+          sky:    '#8ED2F0',
+          ink:    '#2D2A3D',
+          soft:   '#6E6A7C',
+        },
+        fontFamily: {
+          display: ['Poppins','sans-serif'],
+          sans: ['Inter','sans-serif'],
+        },
+        keyframes: {
+          floaty: { '0%,100%':{transform:'translateY(0)'}, '50%':{transform:'translateY(-14px)'} },
+          drift: { '0%,100%':{transform:'translate(0,0) rotate(0deg)'}, '50%':{transform:'translate(10px,-10px) rotate(6deg)'} },
+          dialTurn: { '0%':{transform:'rotate(0deg)'}, '100%':{transform:'rotate(360deg)'} },
+          shake: { '0%,100%':{transform:'translateX(0)'}, '20%':{transform:'translateX(-6px)'}, '40%':{transform:'translateX(6px)'}, '60%':{transform:'translateX(-4px)'}, '80%':{transform:'translateX(4px)'} },
+        },
+        animation: {
+          floaty: 'floaty 5s ease-in-out infinite',
+          drift: 'drift 7s ease-in-out infinite',
+          shake: 'shake .4s ease',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html{scroll-behavior:smooth;}
+  body{background:#FAF8FF; color:#2D2A3D; font-family:'Inter',sans-serif;}
+  h1,h2,h3,.font-display{font-family:'Poppins',sans-serif;}
+  .btn-pop{transition:transform .2s ease, box-shadow .2s ease;}
+  .btn-pop:hover{transform:translateY(-2px);}
+  .btn-pop:active{transform:translateY(0) scale(0.98);}
+  .btn-pop:disabled{opacity:.6; cursor:not-allowed; transform:none;}
+
+  input:focus, button:focus-visible, a:focus-visible{outline:none;}
+  .field input:focus ~ .field-underline, .field.is-focus .field-underline{width:100%;}
+  .field-underline{position:absolute; bottom:0; left:0; height:2px; width:0; background:#6C5CE7; transition:width .3s ease;}
+  .field input{transition:border-color .2s ease;}
+
+  /* --- Dial signature (the vault dial that "unlocks" on successful sign in) --- */
+  .dial-ring{transform-origin:50% 50%; transition:transform .6s cubic-bezier(.34,1.2,.64,1);}
+  .dial-spin{animation:dialTurn 1.1s linear infinite;}
+
+  /* --- Toast --- */
+  @keyframes toastIn{0%{opacity:0;transform:translateY(-10px) scale(.96);}100%{opacity:1;transform:translateY(0) scale(1);}}
+  .toast-pop{animation:toastIn .3s ease forwards;}
+
+  /* --- Modal --- */
+  .modal-backdrop{transition:opacity .25s ease;}
+  .modal-panel{transition:transform .3s cubic-bezier(.2,.8,.2,1), opacity .3s ease;}
+
+  @media (prefers-reduced-motion: reduce){
+    .animate-floaty, .animate-drift, .dial-spin{ animation: none !important; }
+  }
+</style>
+</head>
+<body class="overflow-x-hidden min-h-screen">
+
+<div class="min-h-screen grid lg:grid-cols-[1.05fr_1fr]">
+
+  <!-- ============ Left: brand panel ============ -->
+  <aside class="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-violet via-violetdeep to-[#3A3078] px-12 py-10 text-white">
+    <div class="absolute top-16 left-[8%] w-28 h-28 rounded-[38%_62%_65%_35%/45%_40%_60%_55%] bg-white/10 animate-drift"></div>
+    <div class="absolute bottom-28 left-[18%] w-16 h-16 rounded-full bg-sky/25 animate-floaty"></div>
+    <div class="absolute top-1/3 right-[12%] w-20 h-20 rounded-[50%_50%_35%_65%/60%_40%_60%_40%] bg-mint/20 animate-drift"></div>
+    <div class="absolute bottom-16 right-[6%] w-24 h-24 rounded-[45%_55%_60%_40%/40%_45%_55%_60%] bg-peach/20 animate-floaty"></div>
+
+    <a href="#" class="relative z-10 flex items-center gap-2 font-display font-semibold text-2xl">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="14" fill="white" fill-opacity="0.15"/>
+        <path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Violet
+    </a>
+
+    <div class="relative z-10 max-w-md">
+      <!-- Signature: the vault dial -->
+      <div class="mb-9" aria-hidden="true">
+        <svg id="dialSvg" width="88" height="88" viewBox="0 0 88 88" fill="none">
+          <circle cx="44" cy="44" r="40" stroke="white" stroke-opacity="0.18" stroke-width="2"/>
+          <g id="dialRing" class="dial-ring">
+            <circle cx="44" cy="44" r="30" stroke="white" stroke-opacity="0.5" stroke-width="2" stroke-dasharray="4 7"/>
+            <circle cx="44" cy="14" r="3.5" fill="white"/>
+          </g>
+          <circle cx="44" cy="44" r="6" fill="white"/>
+        </svg>
+      </div>
+      <h1 class="text-[32px] leading-[1.2] font-semibold mb-4">Your money, always one calm tap away.</h1>
+      <p class="text-white/75 text-[15.5px] leading-relaxed">Every sign-in is checked, encrypted, and logged — so the only person moving your money is you.</p>
+
+      <div class="mt-9 flex items-center gap-4 text-[13.5px] text-white/60">
+        <span class="flex items-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2 3 6v6c0 5.2 3.8 9 9 10 5.2-1 9-4.8 9-10V6l-9-4Z" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>256-bit encryption</span>
+        <span class="w-1 h-1 rounded-full bg-white/30"></span>
+        <span>Member FDIC</span>
+      </div>
+    </div>
+
+    <p class="relative z-10 text-[12.5px] text-white/50">&copy; 2026 Violet Bank. Equal Housing Lender.</p>
+  </aside>
+
+  <!-- ============ Right: form ============ -->
+  <main class="relative flex items-center justify-center px-6 sm:px-10 py-14">
+    <div class="absolute top-6 right-6 lg:hidden flex items-center gap-2 font-display font-semibold text-xl text-ink">
+      <svg width="26" height="26" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="14" fill="#6C5CE7"/>
+        <path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Violet
+    </div>
+
+    <div class="w-full max-w-[400px]">
+      <h2 class="text-[26px] sm:text-[28px] font-semibold text-ink mb-2">Welcome back</h2>
+      <p class="text-soft text-[14.5px] mb-8">Sign in to check your balance, move money, or freeze a card.</p>
+
+      <!-- Alert (errors / info) -->
+      <div id="formAlert" class="hidden mb-5 rounded-xl px-4 py-3 text-[13.5px] font-medium"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="field relative mb-5">
+          <label for="email" class="block text-[13px] font-semibold text-ink mb-1.5">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@email.com"
+            class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/60 focus:border-transparent" />
+          <span class="field-underline"></span>
+          <p id="emailError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+        </div>
+
+        <div class="field relative mb-2">
+          <label for="password" class="block text-[13px] font-semibold text-ink mb-1.5">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••"
+            class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 pr-9 text-[15px] text-ink placeholder:text-soft/60 focus:border-transparent" />
+          <span class="field-underline"></span>
+          <button type="button" id="togglePassword" aria-label="Show password" class="absolute right-0 bottom-2.5 text-soft hover:text-ink transition">
+            <svg id="eyeOpen" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="eyeClosed" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 4.22-5.94M9.9 4.24A10.6 10.6 0 0 1 12 4c7 0 11 8 11 8a20.5 20.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+          <p id="passwordError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+        </div>
+
+        <div class="flex items-center justify-between mb-7 mt-4">
+          <label class="flex items-center gap-2 text-[13.5px] text-soft cursor-pointer select-none">
+            <input id="rememberMe" type="checkbox" class="w-4 h-4 rounded border-ink/20 text-violet focus:ring-violet/40" />
+            Remember me
+          </label>
+          <button type="button" id="forgotPasswordBtn" class="text-[13.5px] font-semibold text-violet hover:text-violetdeep transition">Forgot password?</button>
+        </div>
+
+        <button id="submitBtn" type="submit" class="btn-pop w-full flex items-center justify-center gap-2 bg-violet text-white font-display font-semibold text-[15.5px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">
+          <svg id="submitSpinner" class="hidden dial-spin" width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-opacity="0.3" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+          <span id="submitLabel">Sign in</span>
+        </button>
+      </form>
+
+      <p class="text-center text-[14px] text-soft mt-8">New to Violet? <a href="register.html" class="font-semibold text-violet hover:text-violetdeep transition">Open an account</a></p>
+    </div>
+  </main>
+</div>
+
+<!-- ============ Forgot password modal ============ -->
+<div id="forgotModal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
+  <div id="forgotBackdrop" class="modal-backdrop absolute inset-0 bg-ink/50 backdrop-blur-sm opacity-0"></div>
+
+  <div id="forgotPanel" class="modal-panel relative bg-white w-full max-w-[360px] sm:max-w-[420px] max-h-[90vh] overflow-y-auto rounded-[24px] sm:rounded-[28px] p-6 sm:p-8 shadow-2xl opacity-0 translate-y-4 scale-95">
+    <button id="forgotCloseBtn" aria-label="Close" class="absolute top-5 right-5 text-soft hover:text-ink transition">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+
+    <div id="forgotStepRequest">
+      <div class="w-12 h-12 rounded-2xl bg-violet/15 flex items-center justify-center mb-5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="#6C5CE7" stroke-width="2"/><path d="M4 7l8 6 8-6" stroke="#6C5CE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3 class="font-display font-semibold text-xl text-ink mb-2">Reset your password</h3>
+      <p class="text-soft text-[14px] leading-relaxed mb-6">Enter the email on your account and we'll send a link to set a new password.</p>
+
+      <div id="forgotAlert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+      <form id="forgotForm" novalidate>
+        <div class="field relative mb-6">
+          <label for="forgotEmail" class="block text-[13px] font-semibold text-ink mb-1.5">Email</label>
+          <input id="forgotEmail" name="forgotEmail" type="email" autocomplete="email" placeholder="you@email.com"
+            class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/60 focus:border-transparent" />
+          <span class="field-underline"></span>
+        </div>
+        <button id="forgotSubmitBtn" type="submit" class="btn-pop w-full flex items-center justify-center gap-2 bg-violet text-white font-display font-semibold text-[15px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">
+          <svg id="forgotSpinner" class="hidden dial-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-opacity="0.3" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+          <span id="forgotSubmitLabel">Send reset link</span>
+        </button>
+      </form>
+    </div>
+
+    <div id="forgotStepSent" class="hidden text-center py-2">
+      <div class="w-14 h-14 rounded-full bg-mint/20 flex items-center justify-center mx-auto mb-5">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h3 class="font-display font-semibold text-xl text-ink mb-2">Check your inbox</h3>
+      <p class="text-soft text-[14px] leading-relaxed mb-1">We sent a reset link to</p>
+      <p id="forgotSentEmail" class="font-semibold text-ink text-[14.5px] mb-6"></p>
+      <button id="forgotDoneBtn" type="button" class="btn-pop w-full bg-bg text-ink font-display font-semibold text-[15px] py-3.5 rounded-full border-2 border-ink/10">Back to sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Success modal ============ -->
+<div id="successModal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
+  <div id="successBackdrop" class="modal-backdrop absolute inset-0 bg-ink/50 backdrop-blur-sm opacity-0"></div>
+
+  <div id="successPanel" class="modal-panel relative bg-white w-full max-w-[360px] sm:max-w-[400px] max-h-[90vh] overflow-y-auto rounded-[24px] sm:rounded-[28px] p-6 sm:p-8 shadow-2xl opacity-0 translate-y-4 scale-95 text-center">
+    <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-mint/15"></div>
+    <div class="absolute -bottom-12 -left-10 w-32 h-32 rounded-full bg-violet/10"></div>
+
+    <div class="relative z-10">
+      <div id="successRing" class="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full bg-mint/20 flex items-center justify-center mx-auto mb-5 scale-75 opacity-0">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path id="successCheck" d="M20 6 9 17l-5-5" stroke-dasharray="24" stroke-dashoffset="24"/>
+        </svg>
+      </div>
+      <h3 class="font-display font-semibold text-[19px] sm:text-xl text-ink mb-2">Login successful</h3>
+      <p class="text-soft text-[13.5px] sm:text-[14px] leading-relaxed mb-6 sm:mb-7 px-1">Welcome back to Violet. Taking you to your accounts now.</p>
+      <button id="successContinueBtn" type="button" class="btn-pop w-full bg-violet text-white font-display font-semibold text-[14.5px] sm:text-[15px] py-3 sm:py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Toast ============ -->
+<div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center px-4 w-full sm:w-auto"></div>
+
+<!-- ============ Firebase ============ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // TODO: replace with your own Firebase project config
+  // (Project settings → General → Your apps → SDK setup and configuration)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
+  authDomain: "orizonpay-60113.firebaseapp.com",
+  projectId: "orizonpay-60113",
+  storageBucket: "orizonpay-60113.firebasestorage.app",
+  messagingSenderId: "1026303657239",
+  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  /* ---------- helpers ---------- */
+  const $ = (id) => document.getElementById(id);
+
+  function showToast(message, tone = "ink") {
+    const wrap = $("toastWrap");
+    const el = document.createElement("div");
+    const tones = {
+      ink: "bg-ink text-white",
+      mint: "bg-emerald-600 text-white",
+      rose: "bg-rose-600 text-white",
+    };
+    el.className = `toast-pop ${tones[tone] || tones.ink} text-[13.5px] font-semibold px-5 py-3 rounded-full shadow-lg`;
+    el.textContent = message;
+    wrap.appendChild(el);
+    setTimeout(() => {
+      el.style.transition = "opacity .3s ease, transform .3s ease";
+      el.style.opacity = "0";
+      el.style.transform = "translateY(8px)";
+      setTimeout(() => el.remove(), 300);
+    }, 3200);
+  }
+
+  function setAlert(el, message, tone = "rose") {
+    if (!message) {
+      el.classList.add("hidden");
+      el.textContent = "";
+      return;
+    }
+    const tones = {
+      rose: "bg-rose-50 text-rose-700",
+      violet: "bg-violet/10 text-violetdeep",
+      mint: "bg-mint/20 text-emerald-700",
+    };
+    el.className = `mb-5 rounded-xl px-4 py-3 text-[13.5px] font-medium ${tones[tone] || tones.rose}`;
+    el.textContent = message;
+    el.classList.remove("hidden");
+  }
+
+  function friendlyAuthError(err) {
+    const code = err?.code || "";
+    const map = {
+      "auth/invalid-email": "That email address doesn't look right.",
+      "auth/user-disabled": "This account has been disabled. Contact support.",
+      "auth/user-not-found": "We couldn't find an account with that email.",
+      "auth/wrong-password": "That password doesn't match. Try again or reset it.",
+      "auth/invalid-credential": "Your email or password is incorrect.",
+      "auth/too-many-requests": "Too many attempts. Wait a moment and try again.",
+      "auth/network-request-failed": "Network error. Check your connection and try again.",
+      "auth/popup-closed-by-user": "Sign-in was cancelled.",
+    };
+    return map[code] || "Something went wrong signing you in. Please try again.";
+  }
+
+  function setFieldError(inputId, errorId, message) {
+    const input = $(inputId);
+    const error = $(errorId);
+    if (message) {
+      input.classList.add("border-rose-500");
+      error.textContent = message;
+      error.classList.remove("hidden");
+    } else {
+      input.classList.remove("border-rose-500");
+      error.textContent = "";
+      error.classList.add("hidden");
+    }
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  /* ---------- password visibility ---------- */
+  $("togglePassword").addEventListener("click", () => {
+    const input = $("password");
+    const showing = input.type === "text";
+    input.type = showing ? "password" : "text";
+    $("eyeOpen").classList.toggle("hidden", !showing);
+    $("eyeClosed").classList.toggle("hidden", showing);
+    $("togglePassword").setAttribute("aria-label", showing ? "Show password" : "Hide password");
+  });
+
+  /* ---------- sign-in form ---------- */
+  const loginForm = $("loginForm");
+  const submitBtn = $("submitBtn");
+  const submitLabel = $("submitLabel");
+  const submitSpinner = $("submitSpinner");
+  const dialRing = $("dialRing");
+
+  function setSubmitting(isSubmitting, label) {
+    submitBtn.disabled = isSubmitting;
+    submitSpinner.classList.toggle("hidden", !isSubmitting);
+    submitLabel.textContent = label;
+  }
+
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setAlert($("formAlert"), "");
+    setFieldError("email", "emailError", "");
+    setFieldError("password", "passwordError", "");
+
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    let hasError = false;
+
+    if (!isValidEmail(email)) {
+      setFieldError("email", "emailError", "Enter a valid email address.");
+      hasError = true;
+    }
+    if (!password) {
+      setFieldError("password", "passwordError", "Enter your password.");
+      hasError = true;
+    }
+    if (hasError) {
+      loginForm.classList.add("animate-shake");
+      setTimeout(() => loginForm.classList.remove("animate-shake"), 400);
+      return;
+    }
+
+    setSubmitting(true, "Signing in…");
+    try {
+      const persistence = $("rememberMe").checked ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(auth, persistence);
+      await signInWithEmailAndPassword(auth, email, password);
+
+      dialRing.style.transform = "rotate(120deg)";
+      submitLabel.textContent = "Signed in";
+      openSuccessModal();
+      window.location.href = "/dashboard.html";
+    } catch (err) {
+      console.error(err);
+      setAlert($("formAlert"), friendlyAuthError(err), "rose");
+      setSubmitting(false, "Sign in");
+      return;
+    }
+    setSubmitting(false, "Sign in");
+  });
+
+  /* ---------- success modal ---------- */
+  const successModal = $("successModal");
+  const successBackdrop = $("successBackdrop");
+  const successPanel = $("successPanel");
+  const successRing = $("successRing");
+  const successCheck = $("successCheck");
+
+  function openSuccessModal() {
+    successModal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    successRing.style.transform = "scale(.75)";
+    successRing.style.opacity = "0";
+    successCheck.style.strokeDashoffset = "24";
+
+    requestAnimationFrame(() => {
+      successBackdrop.style.opacity = "1";
+      successPanel.style.opacity = "1";
+      successPanel.style.transform = "translateY(0) scale(1)";
+      setTimeout(() => {
+        successRing.style.transition = "transform .4s cubic-bezier(.34,1.56,.64,1), opacity .3s ease";
+        successRing.style.transform = "scale(1)";
+        successRing.style.opacity = "1";
+        successCheck.style.transition = "stroke-dashoffset .5s ease .1s";
+        successCheck.style.strokeDashoffset = "0";
+      }, 150);
+    });
+  }
+
+  function closeSuccessModal() {
+    successBackdrop.style.opacity = "0";
+    successPanel.style.opacity = "0";
+    successPanel.style.transform = "translateY(1rem) scale(.95)";
+    document.body.style.overflow = "";
+    setTimeout(() => successModal.classList.add("hidden"), 250);
+  }
+
+  $("successContinueBtn").addEventListener("click", () => {
+    closeSuccessModal();
+    window.location.href = "dashboard.html";
+  });
+  successBackdrop.addEventListener("click", closeSuccessModal);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !successModal.classList.contains("hidden")) closeSuccessModal();
+  });
+
+  /* ---------- forgot password modal ---------- */
+  const forgotModal = $("forgotModal");
+  const forgotBackdrop = $("forgotBackdrop");
+  const forgotPanel = $("forgotPanel");
+
+  function openForgotModal() {
+    forgotModal.classList.remove("hidden");
+    $("forgotStepRequest").classList.remove("hidden");
+    $("forgotStepSent").classList.add("hidden");
+    setAlert($("forgotAlert"), "");
+    $("forgotEmail").value = $("email").value.trim();
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => {
+      forgotBackdrop.style.opacity = "1";
+      forgotPanel.style.opacity = "1";
+      forgotPanel.style.transform = "translateY(0) scale(1)";
+    });
+    setTimeout(() => $("forgotEmail").focus(), 250);
+  }
+
+  function closeForgotModal() {
+    forgotBackdrop.style.opacity = "0";
+    forgotPanel.style.opacity = "0";
+    forgotPanel.style.transform = "translateY(1rem) scale(.95)";
+    document.body.style.overflow = "";
+    setTimeout(() => forgotModal.classList.add("hidden"), 250);
+  }
+
+  $("forgotPasswordBtn").addEventListener("click", openForgotModal);
+  $("forgotCloseBtn").addEventListener("click", closeForgotModal);
+  $("forgotDoneBtn").addEventListener("click", closeForgotModal);
+  forgotBackdrop.addEventListener("click", closeForgotModal);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !forgotModal.classList.contains("hidden")) closeForgotModal();
+  });
+
+  const forgotForm = $("forgotForm");
+  const forgotSubmitBtn = $("forgotSubmitBtn");
+  const forgotSubmitLabel = $("forgotSubmitLabel");
+  const forgotSpinner = $("forgotSpinner");
+
+  forgotForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setAlert($("forgotAlert"), "");
+    const email = $("forgotEmail").value.trim();
+
+    if (!isValidEmail(email)) {
+      setAlert($("forgotAlert"), "Enter a valid email address.", "rose");
+      return;
+    }
+
+    forgotSubmitBtn.disabled = true;
+    forgotSpinner.classList.remove("hidden");
+    forgotSubmitLabel.textContent = "Sending…";
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      $("forgotSentEmail").textContent = email;
+      $("forgotStepRequest").classList.add("hidden");
+      $("forgotStepSent").classList.remove("hidden");
+    } catch (err) {
+      console.error(err);
+      // Avoid confirming whether an email exists; show a neutral, friendly message either way
+      if (err.code === "auth/invalid-email") {
+        setAlert($("forgotAlert"), "That email address doesn't look right.", "rose");
+      } else {
+        $("forgotSentEmail").textContent = email;
+        $("forgotStepRequest").classList.add("hidden");
+        $("forgotStepSent").classList.remove("hidden");
+      }
+    }
+
+    forgotSubmitBtn.disabled = false;
+    forgotSpinner.classList.add("hidden");
+    forgotSubmitLabel.textContent = "Send reset link";
+  });
+</script>
+
+</body>
+</html>

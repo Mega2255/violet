@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Violet Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: { bg:'#FAF8FF', violet:'#6C5CE7', violetdeep:'#4B3FBF', peach:'#FFB199', mint:'#7FD9BE', sky:'#8ED2F0', ink:'#2D2A3D', soft:'#6E6A7C' },
+        fontFamily: { display: ['Poppins', 'sans-serif'] },
+        keyframes: { popIn: { '0%': { transform: 'scale(.6)', opacity: '0' }, '60%': { transform: 'scale(1.08)' }, '100%': { transform: 'scale(1)', opacity: '1' } }, spin: { '100%': { transform: 'rotate(360deg)' } } },
+        animation: { popIn: 'popIn .35s cubic-bezier(.34,1.56,.64,1) forwards', spinslow: 'spin 1s linear infinite' },
+      }
+    }
+  }
+</script>
+<style>
+  :root{ --bg:#FAF8FF; --surface:#ffffff; --surface-2:#F4F1FC; --text:#2D2A3D; --muted:#6E6A7C; --border:rgba(45,42,61,.12); --shadow:0 10px 30px -14px rgba(45,42,61,.18); }
+  html, body{ background:var(--bg); }
+  body{ color:var(--text); font-family:'Inter',sans-serif; }
+  h1,h2,h3,.font-display{ font-family:'Poppins',sans-serif; }
+  .surface{ background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow); }
+  .surface-2{ background:var(--surface-2); }
+  .text-muted2{ color:var(--muted); }
+  .border-soft2{ border-color:var(--border); }
+  .input-field{ width:100%; background:transparent; border-bottom:2px solid var(--border); color:var(--text); padding-bottom:.55rem; font-size:14px; }
+  .input-field::placeholder{ color:var(--muted); opacity:.65; }
+  .input-field:focus{ outline:none; border-color:#6C5CE7; }
+  .label-sm{ font-size:12.5px; font-weight:600; color:var(--text); margin-bottom:5px; display:block; }
+  .help-sm{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .error-sm{ font-size:12.5px; color:#e11d48; margin-top:4px; }
+  .btn-primary{ background:#6C5CE7; color:#fff; box-shadow:0 5px 0 0 #4B3FBF; transition:transform .15s ease; }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-primary:active{ transform:translateY(0) scale(.98); }
+  .btn-primary:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+  .btn-ghost{ background:var(--surface-2); color:var(--text); border:1px solid var(--border); }
+  .btn-mint{ background:#1D9E75; color:#fff; }
+  .btn-rose{ background:#e11d48; color:#fff; }
+  .pill{ font-size:11.5px; font-weight:700; padding:.2rem .6rem; border-radius:999px; display:inline-block; white-space:nowrap; }
+  .pill-pending{ background:rgba(245,166,35,.15); color:#b06a00; }
+  .pill-approved{ background:rgba(29,158,117,.15); color:#1D9E75; }
+  .pill-rejected{ background:rgba(225,29,72,.12); color:#e11d48; }
+  .pill-suspended{ background:rgba(225,29,72,.12); color:#e11d48; }
+  .pill-active{ background:rgba(29,158,117,.15); color:#1D9E75; }
+  .nav-item{ display:flex; align-items:center; gap:.7rem; padding:.65rem .9rem; border-radius:.85rem; font-size:14px; font-weight:600; color:var(--muted); transition:background .15s ease, color .15s ease; cursor:pointer; }
+  .nav-item:hover{ background:var(--surface-2); color:var(--text); }
+  .nav-item.active{ background:#6C5CE7; color:#fff; }
+  .modal-backdrop{ background:rgba(20,18,32,.55); backdrop-filter:blur(3px); }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:1.25rem; padding:1.1rem 1.25rem; }
+  table.admin-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.admin-table th{ text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); padding:.6rem .8rem; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.admin-table td{ padding:.7rem .8rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+  table.admin-table tr:last-child td{ border-bottom:none; }
+  .row-hover:hover{ background:var(--surface-2); cursor:pointer; }
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ============ Login gate ============ -->
+<div id="loginGate" class="min-h-screen flex items-center justify-center p-5">
+  <div class="surface rounded-3xl p-7 w-full max-w-[380px]">
+    <div class="flex items-center gap-2 font-display font-semibold text-xl mb-1">
+      <svg width="26" height="26" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="14" fill="#6C5CE7"/><path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      Violet <span class="text-muted2 font-medium text-[15px]">Admin</span>
+    </div>
+    <p class="text-muted2 text-[13.5px] mb-6">Sign in to manage users and transactions.</p>
+    <form id="loginForm" class="space-y-4">
+      <div><label class="label-sm">Admin email</label><input required id="loginEmail" type="email" class="input-field" placeholder="admin@gmail.com" /></div>
+      <div><label class="label-sm">Password</label><input required id="loginPassword" type="password" class="input-field" placeholder="••••••••" /></div>
+      <p id="loginError" class="hidden error-sm"></p>
+      <button id="loginSubmitBtn" type="submit" class="btn-primary font-display font-semibold text-[15px] py-3 rounded-full w-full mt-2">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ App shell ============ -->
+<div id="appShell" class="hidden min-h-screen lg:grid lg:grid-cols-[250px_1fr]">
+  <div id="drawerBackdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+  <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-[250px] -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 surface lg:border-r border-r flex flex-col p-5">
+    <div class="flex items-center justify-between mb-8">
+      <a href="#" class="flex items-center gap-2 font-display font-semibold text-lg">
+        <svg width="24" height="24" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="14" fill="#6C5CE7"/><path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        Violet <span class="text-muted2 font-medium text-[13px]">Admin</span>
+      </a>
+      <button id="closeDrawerBtn" class="lg:hidden text-muted2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <nav class="flex-1 space-y-1.5" id="navList">
+      <div class="nav-item active" data-section="overview"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg> Overview</div>
+      <div class="nav-item" data-section="users"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M16.5 8.5A2.8 2.8 0 1 0 16.5 3M21 20c0-2.6-1.8-4.6-4.2-5.3"/></svg> Users</div>
+      <div class="nav-item" data-section="deposits"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V7m0 14-4.5-4.5M12 21l4.5-4.5M4 4h16"/></svg> Deposits <span id="badgeDeposits" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="transfers"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4M17 17H4M17 17l-4-4M17 17l-4 4"/></svg> Transfers <span id="badgeTransfers" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="withdrawals"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg> Withdrawals <span id="badgeWithdrawals" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="cards"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/></svg> Cards <span id="badgeCards" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="loans"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Loans <span id="badgeLoans" class="ml-auto hidden pill pill-pending"></span></div>
+      <div class="nav-item" data-section="depositsettings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19M7 15h4"/></svg> Deposit Settings</div>
+    </nav>
+    <button id="logoutBtn" class="nav-item !text-rose-500 mt-2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> Log out
+    </button>
+  </aside>
+
+  <div class="flex flex-col min-h-screen">
+    <header class="lg:hidden sticky top-0 z-20 surface flex items-center justify-between px-4 py-3.5">
+      <button id="openDrawerBtn" class="text-muted2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <p id="mobileTitle" class="font-display font-semibold text-[15px]">Overview</p>
+      <div class="w-9 h-9 rounded-full bg-violet/15 flex items-center justify-center font-display font-semibold text-violet text-[13px]">A</div>
+    </header>
+
+    <main class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-9">
+
+      <!-- ===== Overview ===== -->
+      <section id="sec-overview">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Overview</h1>
+        <p class="text-muted2 text-[14px] mb-6">Snapshot of Violet Bank right now.</p>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="stat-card"><p class="help-sm mb-1">Total users</p><p id="statTotalUsers" class="font-display font-bold text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Suspended users</p><p id="statSuspended" class="font-display font-bold text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Total balances held</p><p id="statTotalBalance" class="font-display font-bold text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Pending actions</p><p id="statPending" class="font-display font-bold text-[24px] text-[#b06a00]">—</p></div>
+        </div>
+        <h2 class="font-display font-semibold text-[16px] mb-3">Latest pending requests</h2>
+        <div class="surface rounded-2xl overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="overviewPendingBody"></tbody></table>
+          <p id="overviewPendingEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">Nothing pending right now.</p>
+        </div>
+      </section>
+
+      <!-- ===== Users ===== -->
+      <section id="sec-users" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Users</h1>
+        <p class="text-muted2 text-[14px] mb-4">Search, review, fund, or restrict any account.</p>
+        <input id="userSearch" class="input-field mb-5 max-w-sm" placeholder="Search by name, email, or account number…" />
+        <div class="surface rounded-2xl overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Account #</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody id="usersTableBody"></tbody></table>
+          <p id="usersEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No users found.</p>
+        </div>
+      </section>
+
+      <!-- ===== Transaction sections (deposits/transfers/withdrawals/cards/loans) ===== -->
+      <section id="sec-deposits" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Deposits</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve incoming deposits.</p>
+        <div class="surface rounded-2xl overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="depositsTableBody"></tbody></table>
+          <p id="depositsEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No deposit requests yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-transfers" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Transfers</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve outgoing transfers.</p>
+        <div class="surface rounded-2xl overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="transfersTableBody"></tbody></table>
+          <p id="transfersEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No transfer requests yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-withdrawals" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Withdrawals</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve withdrawal requests.</p>
+        <div class="surface rounded-2xl overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="withdrawalsTableBody"></tbody></table>
+          <p id="withdrawalsEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No withdrawal requests yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-cards" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Card applications</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve card requests.</p>
+        <div class="surface rounded-2xl overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Card type</th><th>Fee</th><th>Details</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="cardsTableBody"></tbody></table>
+          <p id="cardsEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No card applications yet.</p>
+        </div>
+      </section>
+
+      <section id="sec-loans" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Loan applications</h1>
+        <p class="text-muted2 text-[14px] mb-4">Review and approve loan requests.</p>
+        <div class="surface rounded-2xl overflow-x-auto">
+          <table class="admin-table"><thead><tr><th>User</th><th>Amount</th><th>Purpose</th><th>Duration</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="loansTableBody"></tbody></table>
+          <p id="loansEmpty" class="hidden p-5 text-muted2 text-[13.5px] text-center">No loan applications yet.</p>
+        </div>
+      </section>
+
+      <!-- ===== Deposit Settings ===== -->
+      <section id="sec-depositsettings" class="hidden">
+        <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Deposit Settings</h1>
+        <p class="text-muted2 text-[14px] mb-6">Control what every user sees on their Deposit page — this updates live on their dashboard.</p>
+
+        <!-- Bank transfer settings -->
+        <div class="surface rounded-2xl p-5 mb-8">
+          <p class="font-display font-semibold text-[15px] mb-1">Bank transfer details</p>
+          <p class="help-sm mb-4">These account details are shown to every user on their Deposit page — this is a single shared account, not per-user.</p>
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div><label class="label-sm">Bank name</label><input id="dsBankName" class="input-field" placeholder="Violet Bank" /></div>
+            <div><label class="label-sm">Help text shown to users</label><input id="dsBankHelp" class="input-field" placeholder="Send funds to this account, then confirm below." /></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div><label class="label-sm">Account number</label><input id="dsAcctNumber" class="input-field" placeholder="0123456789" /></div>
+            <div><label class="label-sm">Account name</label><input id="dsAcctName" class="input-field" placeholder="Violet Bank Ltd" /></div>
+          </div>
+          <div class="mb-4 max-w-xs"><label class="label-sm">Currency</label><input id="dsCurrency" class="input-field" placeholder="USD" /></div>
+          <button id="dsBankSaveBtn" class="btn-primary font-semibold text-[13.5px] py-2.5 px-5 rounded-full">Save bank settings</button>
+        </div>
+
+        <!-- Crypto deposit addresses -->
+        <div class="flex items-center justify-between mb-3">
+          <p class="font-display font-semibold text-[15px]">Crypto deposit addresses</p>
+          <button id="dsAddCoinBtn" class="btn-ghost text-[12.5px] font-semibold rounded-full px-4 py-2">+ Add coin</button>
+        </div>
+        <div id="dsCoinList" class="space-y-3 mb-6"></div>
+
+        <div id="dsCoinForm" class="surface rounded-2xl p-5 mb-8 hidden">
+          <p id="dsCoinFormTitle" class="font-display font-semibold text-[15px] mb-4">Add coin</p>
+          <input type="hidden" id="dsCoinId" />
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div><label class="label-sm">Coin name</label><input id="dsCoinName" class="input-field" placeholder="Bitcoin" /></div>
+            <div><label class="label-sm">Ticker</label><input id="dsCoinTicker" class="input-field" placeholder="BTC" /></div>
+          </div>
+          <div class="mb-4"><label class="label-sm">Network label</label><input id="dsCoinNetwork" class="input-field" placeholder="Bitcoin (BTC) network" /></div>
+          <div class="mb-4"><label class="label-sm">Wallet address</label><input id="dsCoinAddress" class="input-field" placeholder="bc1q…" /></div>
+          <div class="mb-4"><label class="label-sm">Warning text shown to users</label><input id="dsCoinWarning" class="input-field" placeholder="Only send BTC to this address on the Bitcoin network." /></div>
+          <label class="flex items-center gap-2 mb-5 text-[13.5px] font-semibold cursor-pointer"><input type="checkbox" id="dsCoinEnabled" checked /> Visible to users</label>
+          <div class="flex gap-3">
+            <button type="button" id="dsCoinCancelBtn" class="btn-ghost font-semibold text-[13.5px] py-2.5 rounded-full flex-1">Cancel</button>
+            <button type="button" id="dsCoinSaveBtn" class="btn-primary font-semibold text-[13.5px] py-2.5 rounded-full flex-1">Save coin</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ User detail modal ============ -->
+<div id="userModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+  <div class="surface rounded-3xl p-6 w-full max-w-[560px] my-8 animate-popIn max-h-[88vh] overflow-y-auto">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <p id="umName" class="font-display font-semibold text-[19px]">—</p>
+        <p id="umEmail" class="text-muted2 text-[13.5px]">—</p>
+      </div>
+      <button id="umCloseBtn" class="text-muted2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <div class="surface-2 rounded-xl p-3"><p class="help-sm mb-0.5">Account number</p><p id="umAcctNum" class="font-semibold text-[13.5px]">—</p></div>
+      <div class="surface-2 rounded-xl p-3"><p class="help-sm mb-0.5">Balance</p><p id="umBalance" class="font-semibold text-[13.5px]">—</p></div>
+      <div class="surface-2 rounded-xl p-3"><p class="help-sm mb-0.5">Phone</p><p id="umPhone" class="font-semibold text-[13.5px]">—</p></div>
+      <div class="surface-2 rounded-xl p-3"><p class="help-sm mb-0.5">Country</p><p id="umCountry" class="font-semibold text-[13.5px]">—</p></div>
+      <div class="surface-2 rounded-xl p-3"><p class="help-sm mb-0.5">Occupation</p><p id="umOccupation" class="font-semibold text-[13.5px]">—</p></div>
+      <div class="surface-2 rounded-xl p-3"><p class="help-sm mb-0.5">Status</p><p id="umStatus" class="font-semibold text-[13.5px]">—</p></div>
+    </div>
+
+    <div class="surface-2 rounded-2xl p-4 mb-4">
+      <p class="font-display font-semibold text-[14.5px] mb-3">Adjust balance</p>
+      <div class="flex gap-2 mb-3">
+        <input id="umAdjustAmount" type="number" min="0.01" step="0.01" class="input-field" placeholder="0.00" />
+        <select id="umAdjustDirection" class="input-field max-w-[110px]"><option value="credit">Credit</option><option value="debit">Debit</option></select>
+      </div>
+      <input id="umAdjustNote" class="input-field mb-3" placeholder="Note (optional, e.g. bonus, correction)" />
+      <button id="umAdjustBtn" class="btn-primary font-semibold text-[13.5px] py-2.5 rounded-full w-full">Apply adjustment</button>
+    </div>
+
+    <div class="flex gap-3 mb-5">
+      <button id="umSuspendBtn" class="btn-rose font-semibold text-[13.5px] py-2.5 rounded-full flex-1">Suspend account</button>
+      <button id="umUnsuspendBtn" class="btn-mint font-semibold text-[13.5px] py-2.5 rounded-full flex-1 hidden">Unsuspend account</button>
+    </div>
+
+    <p class="font-display font-semibold text-[14.5px] mb-2">Recent transactions</p>
+    <div id="umTxList" class="surface-2 rounded-2xl divide-y divide-[var(--border)] max-h-[220px] overflow-y-auto">
+      <p class="p-4 text-muted2 text-[13px] text-center">No transactions yet.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center px-4 w-full sm:w-auto"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // Same Firebase project as the user dashboard / signup.html
+  const firebaseConfig = {
+    apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
+    authDomain: "orizonpay-60113.firebaseapp.com",
+    projectId: "orizonpay-60113",
+    storageBucket: "orizonpay-60113.firebasestorage.app",
+    messagingSenderId: "1026303657239",
+    appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
+  };
+
+  const ADMIN_EMAIL = "admin@gmail.com";
+  const ADMIN_PASSWORD = "123456789";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const $ = (id) => document.getElementById(id);
+
+  let allUsers = {};      // uid -> user object
+  let allTx = [];         // flat array of {id, ...tx}
+  let activeUid = null;
+  let depositSettings = {}; // settings/deposit from Firebase (bank + crypto coins)
+
+  /* ---------- helpers ---------- */
+  function showToast(message, tone = "ink") {
+    const wrap = $("toastWrap");
+    const el = document.createElement("div");
+    const tones = { ink: "bg-ink text-white", mint: "bg-emerald-600 text-white", rose: "bg-rose-600 text-white" };
+    el.className = `${tones[tone] || tones.ink} text-[13.5px] font-semibold px-5 py-3 rounded-full shadow-lg max-w-[92vw] text-center`;
+    el.textContent = message;
+    wrap.appendChild(el);
+    setTimeout(() => { el.style.transition = "opacity .3s ease, transform .3s ease"; el.style.opacity = "0"; el.style.transform = "translateY(8px)"; setTimeout(() => el.remove(), 300); }, 3200);
+  }
+  const CURRENCY_SYMBOLS = { USD:"$", EUR:"€", GBP:"£", NGN:"₦", GHS:"₵", KES:"KSh", ZAR:"R", EGP:"E£", XOF:"CFA", XAF:"FCFA", UGX:"USh", TZS:"TSh", MAD:"MAD", CAD:"$", AUD:"$", NZD:"$", INR:"₹", PKR:"₨", BDT:"৳", CNY:"¥", JPY:"¥", KRW:"₩", SGD:"$", THB:"฿", IDR:"Rp", PHP:"₱", VND:"₫", AED:"د.إ", SAR:"﷼", ILS:"₪", TRY:"₺", RUB:"₽", CHF:"CHF", SEK:"kr", NOK:"kr", DKK:"kr", PLN:"zł", BRL:"R$", MXN:"$", ARS:"$", COP:"$" };
+  function fmtMoney(amount, code) {
+    const symbol = CURRENCY_SYMBOLS[code] || "";
+    const n = Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${symbol}${n}`;
+  }
+  function statusPill(status) {
+    const map = { pending: ["pill-pending", "Pending"], approved: ["pill-approved", "Approved"], rejected: ["pill-rejected", "Rejected"] };
+    const [cls, label] = map[status] || map.pending;
+    return `<span class="pill ${cls}">${label}</span>`;
+  }
+  function txDetailsSummary(tx) {
+    const d = tx.details || {};
+    if (tx.type === "deposit_bank") return d.reference ? `Ref: ${d.reference}` : "—";
+    if (tx.type === "deposit_crypto") return `${d.coin || ""} ${d.txHash ? "· " + d.txHash.slice(0, 14) + "…" : ""}`;
+    if (tx.type === "transfer_local") return `${d.accountName || ""} · ${d.bankName || ""} · ${d.accountNumber || ""}`;
+    if (tx.type === "transfer_international") return `${d.recipientName || ""} · ${d.bankName || ""} (${d.recipientCountry || ""})`;
+    if (tx.type === "withdrawal") return d.method === "paypal" ? `PayPal: ${d.paypalEmail || ""}` : d.method === "cashapp" ? `Cashtag: ${d.cashtag || ""}` : `${d.bankName || ""} · ${d.accountNumber || ""}`;
+    if (tx.type === "card_application") return `${d.cardholderName || ""}`;
+    if (tx.type === "loan_application") return `${d.purpose || ""} · income ${d.monthlyIncome || 0}`;
+    return "—";
+  }
+
+  /* ---------- login ---------- */
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = $("loginEmail").value.trim();
+    const password = $("loginPassword").value;
+    $("loginError").classList.add("hidden");
+
+    if (email.toLowerCase() !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      $("loginError").textContent = "Invalid admin credentials.";
+      $("loginError").classList.remove("hidden");
+      return;
+    }
+    $("loginSubmitBtn").disabled = true;
+    $("loginSubmitBtn").textContent = "Signing in…";
+    try {
+      await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
+    } catch (err) {
+      $("loginError").textContent = "Could not sign in — make sure the admin account (admin@gmail.com / 123456789) exists in Firebase Authentication.";
+      $("loginError").classList.remove("hidden");
+      $("loginSubmitBtn").disabled = false;
+      $("loginSubmitBtn").textContent = "Sign in";
+    }
+  });
+
+  $("logoutBtn").addEventListener("click", async () => { await signOut(auth); });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL) {
+      $("loginGate").classList.add("hidden");
+      $("appShell").classList.remove("hidden");
+      wireDataListeners();
+    } else {
+      $("appShell").classList.add("hidden");
+      $("loginGate").classList.remove("hidden");
+      $("loginSubmitBtn").disabled = false;
+      $("loginSubmitBtn").textContent = "Sign in";
+    }
+  });
+
+  /* ---------- nav ---------- */
+  const sectionIds = ["overview", "users", "deposits", "transfers", "withdrawals", "cards", "loans", "depositsettings"];
+  function goToSection(name) {
+    sectionIds.forEach((s) => $(`sec-${s}`).classList.toggle("hidden", s !== name));
+    document.querySelectorAll(".nav-item[data-section]").forEach((el) => el.classList.toggle("active", el.dataset.section === name));
+    const titles = { overview: "Overview", users: "Users", deposits: "Deposits", transfers: "Transfers", withdrawals: "Withdrawals", cards: "Cards", loans: "Loans", depositsettings: "Deposit Settings" };
+    $("mobileTitle").textContent = titles[name] || "Overview";
+    closeDrawer();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.querySelectorAll(".nav-item[data-section]").forEach((el) => el.addEventListener("click", () => goToSection(el.dataset.section)));
+  function openDrawer() { $("sidebar").classList.remove("-translate-x-full"); $("drawerBackdrop").classList.remove("hidden"); }
+  function closeDrawer() { $("sidebar").classList.add("-translate-x-full"); $("drawerBackdrop").classList.add("hidden"); }
+  $("openDrawerBtn").addEventListener("click", openDrawer);
+  $("closeDrawerBtn").addEventListener("click", closeDrawer);
+  $("drawerBackdrop").addEventListener("click", closeDrawer);
+  function syncSidebarForViewport() { if (window.innerWidth >= 1024) $("sidebar").classList.remove("-translate-x-full"); else $("sidebar").classList.add("-translate-x-full"); }
+  window.addEventListener("resize", syncSidebarForViewport);
+  syncSidebarForViewport();
+
+  /* ---------- data listeners ---------- */
+  function wireDataListeners() {
+    onValue(ref(db, "users"), (snap) => { allUsers = snap.val() || {}; renderUsers(); renderOverview(); renderAllTxTables(); });
+    onValue(ref(db, "transactions"), (snap) => {
+      const val = snap.val() || {};
+      allTx = Object.entries(val).map(([id, tx]) => ({ id, ...tx })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      renderOverview(); renderAllTxTables();
+      if (activeUid) renderUserTx(activeUid);
+    });
+    onValue(ref(db, "settings/deposit"), (snap) => {
+      depositSettings = snap.val() || {};
+      renderDepositSettingsUI();
+    });
+  }
+
+  function userLabel(uid) {
+    const u = allUsers[uid];
+    if (!u) return { name: "Unknown user", email: "" };
+    return { name: u.fullName || "Unnamed", email: u.email || "" };
+  }
+
+  /* ---------- overview ---------- */
+  function renderOverview() {
+    const users = Object.values(allUsers);
+    $("statTotalUsers").textContent = users.length;
+    $("statSuspended").textContent = users.filter((u) => u.suspended).length;
+    const totalBalance = users.reduce((sum, u) => sum + Number(u.balance || 0), 0);
+    $("statTotalBalance").textContent = totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const pending = allTx.filter((t) => t.status === "pending");
+    $("statPending").textContent = pending.length;
+
+    const byType = (prefix) => pending.filter((t) => t.type && t.type.startsWith(prefix)).length;
+    setBadge("badgeDeposits", byType("deposit"));
+    setBadge("badgeTransfers", byType("transfer"));
+    setBadge("badgeWithdrawals", pending.filter((t) => t.type === "withdrawal").length);
+    setBadge("badgeCards", pending.filter((t) => t.type === "card_application").length);
+    setBadge("badgeLoans", pending.filter((t) => t.type === "loan_application").length);
+
+    const recentPending = pending.slice(0, 8);
+    $("overviewPendingEmpty").classList.toggle("hidden", recentPending.length > 0);
+    $("overviewPendingBody").innerHTML = recentPending.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr class="row-hover">
+        <td><p class="font-semibold">${u.name}</p><p class="help-sm">${u.email}</p></td>
+        <td>${prettyType(tx.type)}</td>
+        <td>${tx.amount != null ? fmtMoney(tx.amount, tx.currency) : "—"}</td>
+        <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
+        <td>${statusPill(tx.status)}</td>
+        <td>${actionButtons(tx.id)}</td>
+      </tr>`;
+    }).join("");
+    wireActionButtons();
+  }
+  function setBadge(id, count) {
+    const el = $(id);
+    if (count > 0) { el.textContent = count; el.classList.remove("hidden"); } else { el.classList.add("hidden"); }
+  }
+  function prettyType(type) {
+    const map = { deposit_bank: "Bank deposit", deposit_crypto: "Crypto deposit", transfer_local: "Local transfer", transfer_international: "Int'l transfer", withdrawal: "Withdrawal", card_application: "Card application", loan_application: "Loan application" };
+    return map[type] || type;
+  }
+
+  /* ---------- users table ---------- */
+  function renderUsers() {
+    const term = ($("userSearch").value || "").toLowerCase().trim();
+    const entries = Object.entries(allUsers).filter(([uid, u]) => {
+      if (!term) return true;
+      return [u.fullName, u.email, u.accountNumber].filter(Boolean).some((v) => String(v).toLowerCase().includes(term));
+    });
+    $("usersEmpty").classList.toggle("hidden", entries.length > 0);
+    $("usersTableBody").innerHTML = entries.map(([uid, u]) => `
+      <tr class="row-hover" data-open-user="${uid}">
+        <td class="font-semibold">${u.fullName || "—"}</td>
+        <td>${u.email || "—"}</td>
+        <td>${u.accountNumber || "—"}</td>
+        <td>${fmtMoney(u.balance || 0, u.currency)}</td>
+        <td>${u.suspended ? `<span class="pill pill-suspended">Suspended</span>` : `<span class="pill pill-active">Active</span>`}</td>
+        <td><button class="btn-ghost text-[12px] font-semibold rounded-full px-3 py-1.5" data-open-user="${uid}">View</button></td>
+      </tr>
+    `).join("");
+    document.querySelectorAll("[data-open-user]").forEach((el) => el.addEventListener("click", () => openUserModal(el.dataset.openUser)));
+  }
+  $("userSearch").addEventListener("input", renderUsers);
+
+  /* ---------- per-category transaction tables ---------- */
+  function actionButtons(txId) {
+    return `<div class="flex gap-2 justify-end">
+      <button class="btn-mint text-[12px] font-semibold rounded-full px-3 py-1.5 tx-approve" data-tx="${txId}">Approve</button>
+      <button class="btn-rose text-[12px] font-semibold rounded-full px-3 py-1.5 tx-reject" data-tx="${txId}">Reject</button>
+    </div>`;
+  }
+  function actionOrStatus(tx) {
+    if (tx.status === "pending") return actionButtons(tx.id);
+    return `<span class="help-sm">Reviewed</span>`;
+  }
+  function wireActionButtons() {
+    document.querySelectorAll(".tx-approve").forEach((btn) => btn.addEventListener("click", () => reviewTransaction(btn.dataset.tx, "approved")));
+    document.querySelectorAll(".tx-reject").forEach((btn) => btn.addEventListener("click", () => reviewTransaction(btn.dataset.tx, "rejected")));
+  }
+
+  function renderAllTxTables() {
+    const deposits = allTx.filter((t) => t.type && t.type.startsWith("deposit"));
+    const transfers = allTx.filter((t) => t.type && t.type.startsWith("transfer"));
+    const withdrawals = allTx.filter((t) => t.type === "withdrawal");
+    const cards = allTx.filter((t) => t.type === "card_application");
+    const loans = allTx.filter((t) => t.type === "loan_application");
+
+    $("depositsEmpty").classList.toggle("hidden", deposits.length > 0);
+    $("depositsTableBody").innerHTML = deposits.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-semibold">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${prettyType(tx.type)}</td><td>${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("transfersEmpty").classList.toggle("hidden", transfers.length > 0);
+    $("transfersTableBody").innerHTML = transfers.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-semibold">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${prettyType(tx.type)}</td><td>${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("withdrawalsEmpty").classList.toggle("hidden", withdrawals.length > 0);
+    $("withdrawalsTableBody").innerHTML = withdrawals.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-semibold">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${(tx.details && tx.details.method) || "—"}</td><td>${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("cardsEmpty").classList.toggle("hidden", cards.length > 0);
+    $("cardsTableBody").innerHTML = cards.map((tx) => {
+      const u = userLabel(tx.uid);
+      return `<tr><td><p class="font-semibold">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${(tx.details && tx.details.cardTypeName) || "—"}</td><td>${fmtMoney(tx.amount, tx.currency)}</td><td>${txDetailsSummary(tx)}</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    $("loansEmpty").classList.toggle("hidden", loans.length > 0);
+    $("loansTableBody").innerHTML = loans.map((tx) => {
+      const u = userLabel(tx.uid);
+      const d = tx.details || {};
+      return `<tr><td><p class="font-semibold">${u.name}</p><p class="help-sm">${u.email}</p></td><td>${fmtMoney(tx.amount, tx.currency)}</td><td>${d.purpose || "—"}</td><td>${d.durationMonths || "—"} mo</td><td>${new Date(tx.createdAt).toLocaleDateString()}</td><td>${statusPill(tx.status)}</td><td>${actionOrStatus(tx)}</td></tr>`;
+    }).join("");
+
+    wireActionButtons();
+  }
+
+  /* ---------- approve / reject logic ---------- */
+  async function reviewTransaction(txId, decision) {
+    const tx = allTx.find((t) => t.id === txId);
+    if (!tx) return;
+    const uid = tx.uid;
+    const user = allUsers[uid];
+    if (!user) { showToast("User not found for this transaction.", "rose"); return; }
+
+    const updates = {};
+    updates[`transactions/${txId}/status`] = decision;
+    updates[`transactions/${txId}/reviewedAt`] = new Date().toISOString();
+
+    if (decision === "approved") {
+      let newBalance = Number(user.balance || 0);
+      if (tx.direction === "credit") newBalance += Number(tx.amount || 0);
+      else if (tx.direction === "debit") newBalance -= Number(tx.amount || 0);
+      updates[`users/${uid}/balance`] = newBalance;
+
+      if (tx.type === "card_application") {
+        const last4 = String(Math.floor(1000 + Math.random() * 9000));
+        const cardId = "card_" + Date.now();
+        updates[`users/${uid}/cards/${cardId}`] = {
+          typeId: tx.details?.cardTypeId || "virtual",
+          typeName: tx.details?.cardTypeName || "Card",
+          last4,
+          issuedAt: new Date().toISOString(),
+        };
+      }
+    }
+
+    try {
+      await update(ref(db), updates);
+      showToast(decision === "approved" ? "Transaction approved" : "Transaction rejected", decision === "approved" ? "mint" : "rose");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  }
+
+  /* ---------- user modal ---------- */
+  function openUserModal(uid) {
+    activeUid = uid;
+    const u = allUsers[uid] || {};
+    $("umName").textContent = u.fullName || "Unnamed user";
+    $("umEmail").textContent = u.email || "—";
+    $("umAcctNum").textContent = u.accountNumber || "—";
+    $("umBalance").textContent = fmtMoney(u.balance || 0, u.currency);
+    $("umPhone").textContent = u.phone || "—";
+    $("umCountry").textContent = u.country || "—";
+    $("umOccupation").textContent = u.occupation || "—";
+    $("umStatus").textContent = u.suspended ? "Suspended" : "Active";
+    $("umSuspendBtn").classList.toggle("hidden", !!u.suspended);
+    $("umUnsuspendBtn").classList.toggle("hidden", !u.suspended);
+    $("umAdjustAmount").value = "";
+    $("umAdjustNote").value = "";
+    renderUserTx(uid);
+    $("userModal").classList.remove("hidden");
+  }
+  $("umCloseBtn").addEventListener("click", () => { $("userModal").classList.add("hidden"); activeUid = null; });
+
+  function renderUserTx(uid) {
+    const list = allTx.filter((t) => t.uid === uid).slice(0, 15);
+    if (!list.length) { $("umTxList").innerHTML = `<p class="p-4 text-muted2 text-[13px] text-center">No transactions yet.</p>`; return; }
+    $("umTxList").innerHTML = list.map((tx) => `
+      <div class="p-3.5 flex items-center justify-between gap-3">
+        <div class="min-w-0"><p class="font-semibold text-[13px] truncate">${tx.description || prettyType(tx.type)}</p><p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p></div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-semibold text-[13px] mb-1">${tx.amount != null ? (tx.direction === "credit" ? "+" : "−") + fmtMoney(tx.amount, tx.currency) : ""}</p>
+          ${statusPill(tx.status)}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  $("umSuspendBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { suspended: true });
+    showToast("Account suspended", "rose");
+    openUserModal(activeUid);
+  });
+  $("umUnsuspendBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { suspended: false });
+    showToast("Account unsuspended", "mint");
+    openUserModal(activeUid);
+  });
+
+  $("umAdjustBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    const amount = Number($("umAdjustAmount").value);
+    const direction = $("umAdjustDirection").value;
+    if (!amount || amount <= 0) { showToast("Enter a valid amount.", "rose"); return; }
+    const user = allUsers[activeUid];
+    const currentBalance = Number(user.balance || 0);
+    const newBalance = direction === "credit" ? currentBalance + amount : currentBalance - amount;
+
+    const txRef = ref(db, "transactions/" + ("admin_" + Date.now()));
+    const updates = {};
+    updates[`users/${activeUid}/balance`] = newBalance;
+    updates[`transactions/admin_${Date.now()}`] = {
+      uid: activeUid, type: "admin_adjustment", direction, amount, currency: user.currency,
+      description: $("umAdjustNote").value.trim() || (direction === "credit" ? "Admin credit" : "Admin debit"),
+      status: "approved", createdAt: new Date().toISOString(), reviewedAt: new Date().toISOString(),
+    };
+    try {
+      await update(ref(db), updates);
+      showToast("Balance updated", "mint");
+      $("umAdjustAmount").value = "";
+      $("umAdjustNote").value = "";
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+
+  /* ---------- Deposit Settings (bank name/help text/account number/account name/currency + crypto coins) ---------- */
+  function renderDepositSettingsUI() {
+    const bank = (depositSettings && depositSettings.bank) || {};
+    $("dsBankName").value = bank.bankName || "";
+    $("dsBankHelp").value = bank.helpText || "";
+    $("dsAcctNumber").value = bank.accountNumber || "";
+    $("dsAcctName").value = bank.accountName || "";
+    $("dsCurrency").value = bank.currency || "";
+
+    const coins = (depositSettings && depositSettings.crypto && depositSettings.crypto.coins) || {};
+    const entries = Object.entries(coins);
+    $("dsCoinList").innerHTML = entries.length ? entries.map(([id, c]) => `
+      <div class="surface rounded-2xl p-4 flex items-center justify-between gap-3 flex-wrap">
+        <div class="min-w-0">
+          <p class="font-semibold text-[14.5px] truncate">${c.name || id} <span class="text-muted2 font-normal">(${c.ticker || ""})</span> ${c.enabled === false ? '<span class="pill pill-suspended ml-1">Hidden</span>' : '<span class="pill pill-active ml-1">Visible</span>'}</p>
+          <p class="help-sm truncate max-w-[420px]">${c.address || "No address set yet"}</p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="btn-ghost text-[12px] font-semibold rounded-full px-3 py-1.5 ds-coin-toggle" data-coin="${id}" data-enabled="${c.enabled === false ? "false" : "true"}">${c.enabled === false ? "Enable" : "Disable"}</button>
+          <button class="btn-ghost text-[12px] font-semibold rounded-full px-3 py-1.5 ds-coin-edit" data-coin="${id}">Edit</button>
+          <button class="btn-rose text-[12px] font-semibold rounded-full px-3 py-1.5 ds-coin-delete" data-coin="${id}">Delete</button>
+        </div>
+      </div>
+    `).join("") : `<p class="surface rounded-2xl p-5 text-muted2 text-[13.5px] text-center">No coins configured yet — add one below and it'll appear on every user's Deposit page.</p>`;
+
+    document.querySelectorAll(".ds-coin-toggle").forEach((btn) => btn.addEventListener("click", () => {
+      const id = btn.dataset.coin;
+      const currentlyEnabled = btn.dataset.enabled === "true";
+      update(ref(db, `settings/deposit/crypto/coins/${id}`), { enabled: !currentlyEnabled })
+        .then(() => showToast(currentlyEnabled ? "Coin hidden from users" : "Coin now visible to users", "mint"))
+        .catch(() => showToast("Something went wrong — try again.", "rose"));
+    }));
+    document.querySelectorAll(".ds-coin-edit").forEach((btn) => btn.addEventListener("click", () => openCoinForm(btn.dataset.coin)));
+    document.querySelectorAll(".ds-coin-delete").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Delete this coin? Users will no longer see it as a deposit option.")) return;
+      try {
+        await remove(ref(db, `settings/deposit/crypto/coins/${btn.dataset.coin}`));
+        showToast("Coin removed", "mint");
+      } catch (err) {
+        showToast("Something went wrong — try again.", "rose");
+      }
+    }));
+  }
+
+  $("dsBankSaveBtn").addEventListener("click", async () => {
+    const bankName = $("dsBankName").value.trim();
+    const helpText = $("dsBankHelp").value.trim();
+    const accountNumber = $("dsAcctNumber").value.trim();
+    const accountName = $("dsAcctName").value.trim();
+    const currency = $("dsCurrency").value.trim().toUpperCase();
+    try {
+      await update(ref(db, "settings/deposit/bank"), { bankName, helpText, accountNumber, accountName, currency });
+      showToast("Bank settings saved", "mint");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+
+  function slugifyCoinId(ticker) {
+    const base = (ticker || "coin").toLowerCase().replace(/[^a-z0-9]/g, "") || "coin";
+    const coins = (depositSettings.crypto && depositSettings.crypto.coins) || {};
+    return coins[base] ? `${base}_${Date.now()}` : base;
+  }
+
+  function openCoinForm(id) {
+    const coins = (depositSettings.crypto && depositSettings.crypto.coins) || {};
+    const c = id ? coins[id] : null;
+    $("dsCoinId").value = id || "";
+    $("dsCoinFormTitle").textContent = id ? "Edit coin" : "Add coin";
+    $("dsCoinName").value = c ? (c.name || "") : "";
+    $("dsCoinTicker").value = c ? (c.ticker || "") : "";
+    $("dsCoinNetwork").value = c ? (c.network || "") : "";
+    $("dsCoinAddress").value = c ? (c.address || "") : "";
+    $("dsCoinWarning").value = c ? (c.warning || "") : "";
+    $("dsCoinEnabled").checked = c ? c.enabled !== false : true;
+    $("dsCoinForm").classList.remove("hidden");
+    $("dsCoinForm").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  $("dsAddCoinBtn").addEventListener("click", () => openCoinForm(null));
+  $("dsCoinCancelBtn").addEventListener("click", () => $("dsCoinForm").classList.add("hidden"));
+  $("dsCoinSaveBtn").addEventListener("click", async () => {
+    const name = $("dsCoinName").value.trim();
+    const ticker = $("dsCoinTicker").value.trim().toUpperCase();
+    const address = $("dsCoinAddress").value.trim();
+    if (!name || !ticker || !address) { showToast("Coin name, ticker, and address are required.", "rose"); return; }
+
+    let id = $("dsCoinId").value;
+    if (!id) id = slugifyCoinId(ticker);
+    const payload = {
+      name, ticker, network: $("dsCoinNetwork").value.trim(), address,
+      warning: $("dsCoinWarning").value.trim(), enabled: $("dsCoinEnabled").checked,
+    };
+    try {
+      await update(ref(db, `settings/deposit/crypto/coins/${id}`), payload);
+      showToast("Coin saved — it'll now show on users' Deposit page", "mint");
+      $("dsCoinForm").classList.add("hidden");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+</script>
+
+</body>
+</html>

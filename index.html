@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Violet Bank — Banking with a little more color</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg:     '#FAF8FF',
+          violet: '#6C5CE7',
+          violetdeep: '#4B3FBF',
+          peach:  '#FFB199',
+          mint:   '#7FD9BE',
+          sky:    '#8ED2F0',
+          ink:    '#2D2A3D',
+          soft:   '#6E6A7C',
+        },
+        fontFamily: {
+          display: ['Poppins','sans-serif'],
+          sans: ['Inter','sans-serif'],
+        },
+        keyframes: {
+          floaty: { '0%,100%':{transform:'translateY(0)'}, '50%':{transform:'translateY(-14px)'} },
+          drift: { '0%,100%':{transform:'translate(0,0) rotate(0deg)'}, '50%':{transform:'translate(10px,-10px) rotate(6deg)'} },
+        },
+        animation: {
+          floaty: 'floaty 5s ease-in-out infinite',
+          drift: 'drift 7s ease-in-out infinite',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html{scroll-behavior:smooth;}
+  body{background:#FAF8FF; color:#2D2A3D; font-family:'Inter',sans-serif;}
+  h1,h2,h3,.font-display{font-family:'Poppins',sans-serif;}
+  .btn-pop{transition:transform .2s ease, box-shadow .2s ease;}
+  .btn-pop:hover{transform:translateY(-3px);}
+  .btn-pop:active{transform:translateY(0) scale(0.98);}
+  .card-hover{position:relative; overflow:hidden; transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease, border-color .4s ease, background-color .4s ease;}
+  .card-hover:hover{transform:translateY(-10px) scale(1.02);}
+  .card-hover.card-light:hover{box-shadow:0 4px 10px rgba(108,92,231,0.1), 0 24px 46px rgba(108,92,231,0.2); border-color:rgba(108,92,231,0.4); background-color:#FFFFFF;}
+  .card-hover.card-violet:hover{box-shadow:0 4px 10px rgba(75,63,191,0.3), 0 26px 52px rgba(75,63,191,0.5);}
+  .card-hover.card-violet{animation:ambientPulse 3.4s ease-in-out infinite;}
+  .card-hover.card-violet:hover{animation-play-state:paused;}
+  .card-hover::before{content:'';position:absolute;top:0;left:-60%;width:35%;height:100%;background:linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);transform:skewX(-20deg);transition:left .85s ease;pointer-events:none;z-index:1;}
+  .card-hover:hover::before{left:130%;}
+  .icon-pop{transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+  .card-hover:hover .icon-pop{transform:scale(1.2) rotate(-10deg);}
+  .card-arrow{transition:transform .3s ease;}
+  .card-hover:hover .card-arrow{transform:translateX(4px);}
+  @keyframes ambientPulse{0%,100%{box-shadow:0 4px 10px rgba(75,63,191,0.15), 0 10px 26px rgba(75,63,191,0.22);} 50%{box-shadow:0 4px 14px rgba(75,63,191,0.22), 0 14px 34px rgba(75,63,191,0.34);}}
+  .quote-mark{font-family:'Poppins',sans-serif; line-height:0.6;}
+  .num-font{font-variant-numeric:tabular-nums;}
+
+  /* --- Spaces roundup animation --- */
+  @keyframes roundupIn{
+    0%{opacity:0; transform:translateY(-8px);}
+    100%{opacity:1; transform:translateY(0);}
+  }
+  .roundup-item{animation:roundupIn .4s ease forwards;}
+
+  /* --- Card controls demo --- */
+  .demo-card{transition:filter .5s ease;}
+  .demo-card.frozen{filter:grayscale(0.55) brightness(1.05);}
+  .frost-overlay{background:linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.18) 65%);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);opacity:0;transition:opacity .5s ease;}
+  .frost-overlay.active{opacity:1;}
+  .freeze-switch{width:46px;height:26px;border-radius:9999px;background:#E4DEFB;position:relative;transition:background-color .3s ease;display:inline-block;}
+  .freeze-switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.2);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  .freeze-switch.on{background:#6C5CE7;}
+  .freeze-switch.on::after{transform:translateX(20px);}
+  @keyframes toastIn{0%{opacity:0;transform:translateY(-8px) scale(.95);}100%{opacity:1;transform:translateY(0) scale(1);}}
+  @keyframes toastOut{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-8px) scale(.95);}}
+  .toast-pop{animation:toastIn .35s ease forwards, toastOut .35s ease 2.5s forwards;white-space:nowrap;}
+
+  /* --- Testimonial slider --- */
+  .t-track{display:flex;transition:transform .55s cubic-bezier(.65,0,.35,1);}
+  .t-slide{min-width:100%; padding:0 4px;}
+  .t-slide-inner{transition:opacity .5s ease, transform .5s ease; opacity:0.35; transform:scale(0.96);}
+  .t-slide.is-active .t-slide-inner{opacity:1; transform:scale(1);}
+  .seg-bar{position:relative;height:3px;border-radius:9999px;background:rgba(255,255,255,0.25);overflow:hidden;flex:1;cursor:pointer;}
+  .seg-fill{position:absolute;inset:0;width:0%;background:#fff;border-radius:9999px;}
+  .seg-fill.playing{transition:width 5s linear;}
+  .t-arrow{transition:background-color .2s ease, transform .2s ease;}
+  .t-arrow:hover{transform:translateY(-50%) scale(1.08);}
+  .star{color:#FFC85C;}
+  .glass-card{background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.16);}
+</style>
+</head>
+<body class="overflow-x-hidden">
+
+<nav class="sticky top-0 z-50 bg-bg/90 backdrop-blur border-b border-ink/5">
+  <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+    <a href="#" class="flex items-center gap-2 font-display font-semibold text-2xl text-ink">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="14" fill="#6C5CE7"/>
+        <path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Violet
+    </a>
+    <div class="hidden lg:flex items-center gap-8 text-[15px] font-medium text-ink">
+      <a href="#" class="hover:text-violet transition">Personal</a>
+      <a href="#" class="hover:text-violet transition">Business</a>
+      <a href="#" class="hover:text-violet transition">Rates</a>
+      <a href="#" class="hover:text-violet transition">Support</a>
+    </div>
+    <div class="hidden lg:flex items-center gap-4">
+      <a href="login.html" class="font-semibold text-ink hover:text-violet transition">Log in</a>
+      <a href="register.html" class="btn-pop bg-violet text-white font-display font-semibold px-6 py-3 rounded-full shadow-[0_4px_0_0_#4B3FBF]">Open an account</a>
+    </div>
+    <button id="mobileMenuBtn" class="lg:hidden text-ink relative z-50 w-8 h-8 flex items-center justify-center" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <svg id="mobileMenuIconOpen" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg id="mobileMenuIconClose" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" class="hidden"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div id="mobileMenu" class="lg:hidden hidden border-t border-ink/5 bg-bg">
+    <div class="px-6 py-5 flex flex-col gap-1 text-[15.5px] font-medium text-ink">
+      <a href="#" class="py-2.5 hover:text-violet transition">Personal</a>
+      <a href="#" class="py-2.5 hover:text-violet transition">Business</a>
+      <a href="#" class="py-2.5 hover:text-violet transition">Rates</a>
+      <a href="#" class="py-2.5 hover:text-violet transition">Support</a>
+      <div class="flex flex-col gap-3 mt-3 pt-4 border-t border-ink/10">
+        <a href="login.html" class="text-center font-semibold text-ink border-2 border-ink/10 rounded-full py-3">Log in</a>
+        <a href="register.html" class="text-center btn-pop bg-violet text-white font-display font-semibold py-3 rounded-full shadow-[0_4px_0_0_#4B3FBF]">Open an account</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="relative overflow-hidden pt-16 pb-6">
+  <div class="absolute top-16 left-[4%] w-14 h-14 sm:w-24 sm:h-24 rounded-[38%_62%_65%_35%/45%_40%_60%_55%] bg-peach/50 animate-drift"></div>
+  <div class="absolute bottom-24 left-[14%] w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-sky/50 animate-floaty"></div>
+  <div class="absolute top-28 right-[8%] w-10 h-10 sm:w-16 sm:h-16 rounded-[50%_50%_35%_65%/60%_40%_60%_40%] bg-mint/50 animate-drift"></div>
+  <div class="absolute bottom-10 right-[2%] w-16 h-16 sm:w-28 sm:h-28 rounded-[45%_55%_60%_40%/40%_45%_55%_60%] bg-violet/15 animate-floaty"></div>
+
+  <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-14 items-center relative z-10">
+    <div>
+      <span class="inline-flex items-center gap-2 bg-violet/10 text-violetdeep font-semibold text-[13.5px] px-4 py-2 rounded-full mb-6">
+        <span class="w-2 h-2 rounded-full bg-violet"></span> FDIC insured · rated 4.8/5 by 200,000+ members
+      </span>
+      <h1 class="text-[32px] sm:text-[42px] lg:text-[52px] leading-[1.12] font-semibold mb-6 max-w-lg text-ink">
+        Real banking, with a little more <span class="text-violet">color</span>.
+      </h1>
+      <p class="text-soft text-[15.5px] sm:text-[17px] max-w-md mb-8 leading-relaxed">
+        A full-service online bank — savings, checking, and CDs — built to feel human instead of stuffy. No monthly fees, no branch visits, no small print.
+      </p>
+      <div class="flex flex-wrap gap-3 sm:gap-4 mb-6">
+        <a href="#" class="btn-pop bg-violet text-white font-display font-semibold text-[15px] sm:text-[16px] px-6 sm:px-7 py-3.5 sm:py-4 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Open a free account</a>
+        <a href="#" class="btn-pop bg-white text-ink font-display font-semibold text-[15px] sm:text-[16px] px-6 sm:px-7 py-3.5 sm:py-4 rounded-full border-2 border-ink/10 shadow-[0_5px_0_0_#EDE9F7]">See today's rates</a>
+      </div>
+      <p class="text-[13.5px] text-soft">No minimum balance · No monthly fees · Member FDIC</p>
+    </div>
+
+    <div class="relative">
+      <div class="absolute inset-0 bg-violet/10 rounded-[45%_55%_60%_40%/40%_45%_55%_60%] scale-110 -z-10"></div>
+      <div class="bg-white rounded-[28px] sm:rounded-[32px] p-5 sm:p-7 shadow-xl">
+        <div class="flex items-center justify-between mb-5 sm:mb-6">
+          <div>
+            <p class="text-[11.5px] sm:text-[12.5px] text-soft font-semibold uppercase tracking-wide">Total balance</p>
+            <p class="font-display text-2xl sm:text-3xl font-semibold text-ink">$24,318.90</p>
+          </div>
+          <span class="text-[11px] sm:text-[12px] font-semibold bg-mint/20 text-emerald-700 px-2.5 sm:px-3 py-1.5 rounded-full whitespace-nowrap">+ 4.35% APY</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
+          <div class="bg-bg rounded-2xl p-3 sm:p-4">
+            <p class="text-[11px] sm:text-[12px] text-soft font-semibold mb-1">Online savings</p>
+            <p class="font-display text-lg sm:text-xl font-semibold text-ink">$16,204</p>
+            <p class="text-[11px] sm:text-[12px] text-violet font-semibold mt-1">+ $58 this week</p>
+          </div>
+          <div class="bg-bg rounded-2xl p-3 sm:p-4">
+            <p class="text-[11px] sm:text-[12px] text-soft font-semibold mb-1">Checking</p>
+            <p class="font-display text-lg sm:text-xl font-semibold text-ink">$3,614</p>
+            <p class="text-[11px] sm:text-[12px] text-soft mt-1">2 pending</p>
+          </div>
+        </div>
+        <div class="bg-bg rounded-2xl p-3 sm:p-4">
+          <div class="flex justify-between items-center mb-2">
+            <p class="text-[12.5px] sm:text-[13px] font-semibold text-ink">Emergency fund goal</p>
+            <p class="text-[12.5px] sm:text-[13px] font-semibold text-violet">68%</p>
+          </div>
+          <div class="w-full bg-white rounded-full h-2.5">
+            <div class="bg-violet h-2.5 rounded-full" style="width:68%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <svg class="w-full mt-6" viewBox="0 0 1440 100" preserveAspectRatio="none" style="height:56px;">
+    <path d="M0,50 C240,100 480,0 720,40 C960,80 1200,10 1440,50 L1440,100 L0,100 Z" fill="#FFFFFF"/>
+  </svg>
+</header>
+
+<section class="relative bg-white pt-0 pb-16 sm:pb-20 overflow-hidden">
+  <div class="absolute top-10 right-[6%] w-10 h-10 sm:w-20 sm:h-20 rounded-[40%_60%_55%_45%/45%_40%_60%_55%] bg-mint/25 animate-drift"></div>
+  <div class="absolute bottom-14 left-[3%] w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-peach/25 animate-floaty"></div>
+
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <div class="max-w-lg mb-8 sm:mb-10" data-aos="fade-up">
+      <span class="inline-flex items-center gap-2 bg-violet/10 text-violetdeep font-semibold text-[13px] px-4 py-1.5 rounded-full mb-4">Accounts</span>
+      <h2 class="text-[28px] sm:text-[34px] font-semibold text-ink mb-3">Three ways to bank, all with you in mind.</h2>
+      <p class="text-soft text-[15.5px] sm:text-[16px]">Whatever you're saving for, there's an account built for it — no minimums, no monthly fees, no branch visit required.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+      <div class="card-hover card-light bg-bg rounded-3xl p-6 sm:p-7 border border-ink/5" data-aos="fade-up" data-aos-delay="0">
+        <div class="icon-pop w-12 h-12 rounded-2xl bg-violet/15 flex items-center justify-center mb-5">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 10h16M4 10a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2M4 10v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M8 14h.01M12 14h4" stroke="#6C5CE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="font-display font-semibold text-lg text-ink mb-2">Online savings</h3>
+        <div class="font-display text-2xl sm:text-3xl font-semibold text-violet mb-2"><span class="apy-count" data-target="4.35">0.00</span>% <span class="text-sm text-soft font-sans font-normal">APY</span></div>
+        <p class="text-soft text-[14px] sm:text-[14.5px] mb-5 leading-relaxed">Your everyday cushion. Withdraw anytime, watch it grow every day.</p>
+        <a href="#" class="font-display font-semibold text-[14.5px] text-ink inline-flex items-center gap-1.5 hover:text-violet transition">Open account
+          <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <div class="card-hover card-violet bg-violet rounded-3xl p-6 sm:p-7 relative overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+        <span class="absolute top-5 right-5 bg-white/20 text-white text-[11px] font-semibold px-3 py-1 rounded-full">Most popular</span>
+        <div class="icon-pop w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-5">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2 3 7v6c0 5 4 8.5 9 9 5-.5 9-4 9-9V7l-9-5Z" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="font-display font-semibold text-lg text-white mb-2">Certificates of deposit</h3>
+        <div class="font-display text-2xl sm:text-3xl font-semibold text-white mb-2"><span class="apy-count" data-target="4.60">0.00</span>% <span class="text-sm text-white/70 font-sans font-normal">18-month</span></div>
+        <p class="text-white/80 text-[14px] sm:text-[14.5px] mb-5 leading-relaxed">Lock in a rate for a fixed term, with a no-penalty option if plans change.</p>
+        <a href="#" class="font-display font-semibold text-[14.5px] text-white inline-flex items-center gap-1.5 hover:text-yellow-200 transition">Compare terms
+          <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <div class="card-hover card-light bg-bg rounded-3xl p-6 sm:p-7 border border-ink/5 sm:col-span-2 lg:col-span-1" data-aos="fade-up" data-aos-delay="200">
+        <div class="icon-pop w-12 h-12 rounded-2xl bg-mint/25 flex items-center justify-center mb-5">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="#1D9E75" stroke-width="2"/><path d="M3 10h18" stroke="#1D9E75" stroke-width="2"/></svg>
+        </div>
+        <h3 class="font-display font-semibold text-lg text-ink mb-2">Checking</h3>
+        <div class="font-display text-2xl sm:text-3xl font-semibold text-ink mb-2">$0 <span class="text-sm text-soft font-sans font-normal">monthly fee</span></div>
+        <p class="text-soft text-[14px] sm:text-[14.5px] mb-5 leading-relaxed">Free debit card, early payday, and 55,000+ fee-free ATMs nationwide.</p>
+        <a href="#" class="font-display font-semibold text-[14.5px] text-ink inline-flex items-center gap-1.5 hover:text-violet transition">See details
+          <svg class="card-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="relative bg-bg py-16 sm:py-20 overflow-hidden">
+  <div class="absolute top-20 left-[2%] w-12 h-12 sm:w-20 sm:h-20 rounded-[45%_55%_60%_40%/40%_45%_55%_60%] bg-sky/25 animate-floaty"></div>
+  <div class="absolute bottom-10 right-[5%] w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-peach/25 animate-drift"></div>
+
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <div class="max-w-lg mb-8 sm:mb-10" data-aos="fade-up">
+      <span class="inline-flex items-center gap-2 bg-violet/10 text-violetdeep font-semibold text-[13px] px-4 py-1.5 rounded-full mb-4">Why Violet</span>
+      <h2 class="text-[28px] sm:text-[34px] font-semibold text-ink mb-3">Everything a good bank should be, in one place.</h2>
+      <p class="text-soft text-[15.5px] sm:text-[16px]">No branch, no problem — here's what you actually get.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:auto-rows-[170px]">
+      <div class="card-hover card-violet bg-violet lg:col-span-2 lg:row-span-2 rounded-3xl p-7 flex flex-col justify-between" data-aos="fade-up" data-aos-delay="0">
+        <div>
+          <div class="icon-pop w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-5">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.5" stroke="white" stroke-width="2"/><path d="M10 18h4" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3 class="font-display font-semibold text-xl text-white mb-2">Bank from anywhere</h3>
+          <p class="text-white/80 text-[14.5px] leading-relaxed max-w-xs">Deposit checks, move money, and track every goal from an app that actually feels good to use.</p>
+        </div>
+        <div class="flex items-center gap-2 mt-6">
+          <span class="w-2 h-2 rounded-full bg-white/60"></span>
+          <span class="w-2 h-2 rounded-full bg-white/60"></span>
+          <span class="w-2 h-2 rounded-full bg-white"></span>
+        </div>
+      </div>
+
+      <div class="card-hover card-light bg-white border border-ink/5 rounded-3xl p-6 flex flex-col justify-between" data-aos="fade-up" data-aos-delay="80">
+        <div class="icon-pop w-11 h-11 rounded-2xl bg-mint/25 flex items-center justify-center mb-4">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 3 6v6c0 5.2 3.8 9 9 10 5.2-1 9-4.8 9-10V6l-9-4Z" stroke="#1D9E75" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-base text-ink mb-1">256-bit encryption</h3>
+          <p class="text-soft text-[13.5px] leading-relaxed">Same security standard used by major banks nationwide.</p>
+        </div>
+      </div>
+
+      <div class="card-hover card-light bg-white border border-ink/5 rounded-3xl p-6 flex flex-col justify-between" data-aos="fade-up" data-aos-delay="140">
+        <div class="icon-pop w-11 h-11 rounded-2xl bg-peach/30 flex items-center justify-center mb-4">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="#C24E2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#C24E2A" stroke-width="2"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-base text-ink mb-1">24/7 real support</h3>
+          <p class="text-soft text-[13.5px] leading-relaxed">Talk to a human any hour, any day — no hold music.</p>
+        </div>
+      </div>
+
+      <div class="card-hover card-light bg-white border border-ink/5 lg:col-span-2 rounded-3xl p-6 flex items-center gap-5" data-aos="fade-up" data-aos-delay="200">
+        <div class="icon-pop w-11 h-11 rounded-2xl bg-sky/30 flex items-center justify-center flex-shrink-0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M14 6l6 6-6 6" stroke="#1976A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-base text-ink mb-1">Instant transfers</h3>
+          <p class="text-soft text-[13.5px] leading-relaxed">Move money between accounts the moment you need to, not the next business day.</p>
+        </div>
+      </div>
+
+      <div class="card-hover card-light bg-white border border-ink/5 lg:col-span-2 rounded-3xl p-6 flex items-center gap-5" data-aos="fade-up" data-aos-delay="260">
+        <div class="icon-pop w-11 h-11 rounded-2xl bg-violet/15 flex items-center justify-center flex-shrink-0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#6C5CE7" stroke-width="2"/><path d="M9 12h6M12 9v6" stroke="#6C5CE7" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-semibold text-base text-ink mb-1">55,000+ fee-free ATMs</h3>
+          <p class="text-soft text-[13.5px] leading-relaxed">Find cash nearby without ever paying a withdrawal fee.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIGNATURE SECTION: Spaces ============ -->
+<section class="relative bg-bg py-16 sm:py-24 overflow-hidden">
+  <div class="absolute top-10 left-[3%] w-14 h-14 sm:w-24 sm:h-24 rounded-[42%_58%_60%_40%/45%_40%_60%_55%] bg-peach/25 animate-drift"></div>
+  <div class="absolute bottom-16 right-[4%] w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-sky/25 animate-floaty"></div>
+  <div class="absolute top-1/2 right-[12%] w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-mint/25 animate-drift"></div>
+
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+      <!-- Phone / spaces mockup -->
+      <div class="relative mx-auto w-full max-w-[300px] sm:max-w-[340px] order-2 lg:order-1" data-aos="fade-up">
+        <div class="absolute -left-4 sm:-left-10 top-6 w-full h-full rounded-[28px] bg-peach/70 -rotate-6 shadow-lg"></div>
+        <div class="absolute -right-4 sm:-right-10 top-10 w-full h-full rounded-[28px] bg-mint/70 rotate-6 shadow-lg"></div>
+
+        <div class="relative bg-white rounded-[28px] p-5 sm:p-6 shadow-2xl border border-ink/5">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-violet/15 flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 2.5 4 6.5 4c2 0 3.3 1 5.5 3 2.2-2 3.5-3 5.5-3 4 0 6 4.5 4 8.5C19 16.65 12 21 12 21Z" stroke="#6C5CE7" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <p class="font-display font-semibold text-[14.5px] text-ink leading-tight">Trip to Lisbon</p>
+                <p class="text-[11.5px] text-soft">Space · goal $2,400</p>
+              </div>
+            </div>
+            <span class="text-[11px] font-semibold bg-mint/20 text-emerald-700 px-2.5 py-1 rounded-full">72%</span>
+          </div>
+
+          <div class="w-full bg-bg rounded-full h-2 mb-1">
+            <div class="bg-violet h-2 rounded-full" style="width:72%"></div>
+          </div>
+          <p class="text-[11.5px] text-soft mb-5">$1,728 saved &middot; $672 to go</p>
+
+          <p class="text-[11px] font-semibold text-soft uppercase tracking-wide mb-2">Round-ups landing here</p>
+          <div id="roundupList" class="space-y-2 min-h-[168px]"></div>
+        </div>
+      </div>
+
+      <!-- Copy -->
+      <div class="order-1 lg:order-2" data-aos="fade-up" data-aos-delay="100">
+        <span class="inline-flex items-center gap-2 bg-violet/10 text-violetdeep font-semibold text-[13px] px-4 py-1.5 rounded-full mb-4">Spaces</span>
+        <h2 class="text-[28px] sm:text-[36px] font-semibold text-ink mb-4 leading-tight">A Space for everything you're saving for.</h2>
+        <p class="text-soft text-[15.5px] sm:text-[16px] mb-8 leading-relaxed max-w-md">Split your money into as many goals as you like, right inside your account. No new applications, no separate logins — just a Space, a target, and a way to watch it fill up.</p>
+
+        <div class="space-y-5 mb-9">
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-xl bg-violet/15 flex items-center justify-center flex-shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#6C5CE7" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-[15px] text-ink mb-0.5">Create a Space in seconds</p>
+              <p class="text-soft text-[14px] leading-relaxed">Name it, set a target, pick a color. It's ready before your coffee is.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-xl bg-peach/30 flex items-center justify-center flex-shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="#C24E2A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#C24E2A" stroke-width="2.2"/></svg>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-[15px] text-ink mb-0.5">Round up every purchase</p>
+              <p class="text-soft text-[14px] leading-relaxed">Spare change from your debit card drops straight into any Space you choose.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-xl bg-sky/25 flex items-center justify-center flex-shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="#1976A6" stroke-width="2.2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#1976A6" stroke-width="2.2"/></svg>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-[15px] text-ink mb-0.5">Lock it until you're ready</p>
+              <p class="text-soft text-[14px] leading-relaxed">Set a date and Violet keeps the withdraw button away from you until then.</p>
+            </div>
+          </div>
+        </div>
+
+        <a href="#" class="btn-pop inline-flex bg-violet text-white font-display font-semibold text-[15.5px] px-7 py-4 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Create your first Space</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEW SECTION 1: Testimonials ============ -->
+<section class="relative bg-gradient-to-br from-violet via-violetdeep to-[#3A3078] py-16 sm:py-20 overflow-hidden">
+  <div class="absolute top-10 left-[6%] w-14 h-14 sm:w-24 sm:h-24 rounded-[45%_55%_60%_40%/40%_45%_55%_60%] bg-white/10 animate-floaty"></div>
+  <div class="absolute bottom-10 right-[8%] w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white/10 animate-drift"></div>
+  <div class="absolute top-1/3 right-[18%] w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-peach/30 animate-drift"></div>
+
+  <div class="max-w-4xl mx-auto px-6 relative z-10">
+    <div class="text-center mb-10 sm:mb-12" data-aos="fade-up">
+      <span class="inline-flex items-center gap-2 bg-white/10 text-white font-semibold text-[13px] px-4 py-1.5 rounded-full mb-4">Member stories</span>
+      <h2 class="text-[28px] sm:text-[34px] font-semibold text-white mb-3">200,000+ people switched. Here's why.</h2>
+      <p class="text-white/70 text-[15.5px] sm:text-[16px]">Real accounts, real balances, real reasons to leave a branch-based bank behind.</p>
+    </div>
+
+    <div class="relative" data-aos="fade-up" data-aos-delay="100">
+      <button id="tPrev" aria-label="Previous testimonial" class="t-arrow hidden sm:flex absolute -left-5 lg:-left-16 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 items-center justify-center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button id="tNext" aria-label="Next testimonial" class="t-arrow hidden sm:flex absolute -right-5 lg:-right-16 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 items-center justify-center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <div id="tSlider" class="overflow-hidden rounded-[32px]">
+        <div id="tTrack" class="t-track">
+
+          <div class="t-slide">
+            <div class="t-slide-inner glass-card rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-12 text-center">
+              <div class="flex justify-center gap-1 mb-5">
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+              </div>
+              <p class="font-display text-white text-[16.5px] sm:text-[20px] lg:text-[23px] leading-snug max-w-xl mx-auto mb-6 sm:mb-7">Moved my emergency fund over on a Tuesday and it was earning interest by Wednesday. My old bank made me wait a week just to open a savings account.</p>
+              <div class="flex items-center justify-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center font-display font-semibold text-white text-sm">RM</div>
+                <div class="text-left">
+                  <p class="font-display font-semibold text-[14.5px] text-white">Renee M.</p>
+                  <p class="text-[12.5px] text-white/60">Member since 2023 · Online savings</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="t-slide">
+            <div class="t-slide-inner glass-card rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-12 text-center">
+              <div class="flex justify-center gap-1 mb-5">
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+              </div>
+              <p class="font-display text-white text-[16.5px] sm:text-[20px] lg:text-[23px] leading-snug max-w-xl mx-auto mb-6 sm:mb-7">I called support at 11pm about a declined card on a trip and got a real person in under two minutes. That alone was worth switching for.</p>
+              <div class="flex items-center justify-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center font-display font-semibold text-white text-sm">DK</div>
+                <div class="text-left">
+                  <p class="font-display font-semibold text-[14.5px] text-white">Daniel K.</p>
+                  <p class="text-[12.5px] text-white/60">Member since 2021 · Checking</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="t-slide">
+            <div class="t-slide-inner glass-card rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-12 text-center">
+              <div class="flex justify-center gap-1 mb-5">
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="star opacity-50"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+              </div>
+              <p class="font-display text-white text-[16.5px] sm:text-[20px] lg:text-[23px] leading-snug max-w-xl mx-auto mb-6 sm:mb-7">Locked in an 18-month CD for my house down payment and the rate actually beat every credit union I checked. No surprises at maturity either.</p>
+              <div class="flex items-center justify-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center font-display font-semibold text-white text-sm">AT</div>
+                <div class="text-left">
+                  <p class="font-display font-semibold text-[14.5px] text-white">Aisha T.</p>
+                  <p class="text-[12.5px] text-white/60">Member since 2022 · CD</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="t-slide">
+            <div class="t-slide-inner glass-card rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-12 text-center">
+              <div class="flex justify-center gap-1 mb-5">
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+              </div>
+              <p class="font-display text-white text-[16.5px] sm:text-[20px] lg:text-[23px] leading-snug max-w-xl mx-auto mb-6 sm:mb-7">Switched our small business payroll account over last spring. Instant transfers between accounts alone saved us hours every month.</p>
+              <div class="flex items-center justify-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center font-display font-semibold text-white text-sm">JP</div>
+                <div class="text-left">
+                  <p class="font-display font-semibold text-[14.5px] text-white">Jordan P.</p>
+                  <p class="text-[12.5px] text-white/60">Member since 2024 · Business checking</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="t-slide">
+            <div class="t-slide-inner glass-card rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-12 text-center">
+              <div class="flex justify-center gap-1 mb-5">
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+                <svg class="star" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.4 7 .8-5.3 4.8 1.5 6.9L12 17.3l-6.1 3.6 1.5-6.9L2.1 9.2l7-.8L12 2z"/></svg>
+              </div>
+              <p class="font-display text-white text-[16.5px] sm:text-[20px] lg:text-[23px] leading-snug max-w-xl mx-auto mb-6 sm:mb-7">The 68% goal tracker on the app is oddly motivating. I've never stuck to a savings habit until I could actually watch the bar move.</p>
+              <div class="flex items-center justify-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center font-display font-semibold text-white text-sm">SL</div>
+                <div class="text-left">
+                  <p class="font-display font-semibold text-[14.5px] text-white">Sam L.</p>
+                  <p class="text-[12.5px] text-white/60">Member since 2023 · Online savings</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="tSegments" class="flex gap-2 max-w-md mx-auto mt-8"></div>
+      <p id="tCounter" class="text-center text-white/50 text-[12.5px] font-semibold mt-3 num-font"></p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-y-6 gap-x-4 sm:gap-x-10 mt-14 pt-10 border-t border-white/10">
+      <div class="text-center">
+        <p class="font-display text-2xl sm:text-3xl font-semibold text-white">200K+</p>
+        <p class="text-[12.5px] text-white/60 font-medium">active members</p>
+      </div>
+      <div class="text-center">
+        <p class="font-display text-2xl sm:text-3xl font-semibold text-white">4.8/5</p>
+        <p class="text-[12.5px] text-white/60 font-medium">average app rating</p>
+      </div>
+      <div class="text-center">
+        <p class="font-display text-2xl sm:text-3xl font-semibold text-white">$2.1B</p>
+        <p class="text-[12.5px] text-white/60 font-medium">held in member deposits</p>
+      </div>
+      <div class="text-center">
+        <p class="font-display text-2xl sm:text-3xl font-semibold text-white">&lt; 2 min</p>
+        <p class="text-[12.5px] text-white/60 font-medium">average support wait</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIGNATURE SECTION: Card controls ============ -->
+<section class="relative bg-white py-16 sm:py-24 overflow-hidden">
+  <div class="absolute top-8 left-[4%] w-12 h-12 sm:w-24 sm:h-24 rounded-[42%_58%_60%_40%/45%_40%_60%_55%] bg-sky/20 animate-drift"></div>
+  <div class="absolute bottom-10 right-[6%] w-10 h-10 sm:w-20 sm:h-20 rounded-full bg-peach/20 animate-floaty"></div>
+  <div class="absolute top-1/2 left-[10%] w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-mint/25 animate-drift"></div>
+
+  <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+    <!-- Copy -->
+    <div data-aos="fade-up">
+      <span class="inline-flex items-center gap-2 bg-violet/10 text-violetdeep font-semibold text-[13px] px-4 py-1.5 rounded-full mb-4">Card controls</span>
+      <h2 class="text-[26px] sm:text-[32px] lg:text-[36px] font-semibold text-ink mb-4 leading-tight">Freeze it. Unfreeze it. Instantly.</h2>
+      <p class="text-soft text-[15px] sm:text-[16px] mb-8 leading-relaxed max-w-md">Lost your card between the couch cushions? Tap once to freeze it in the app — no call center, no waiting. Tap again the moment you find it.</p>
+
+      <div class="space-y-5">
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-violet/15 flex items-center justify-center flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="#6C5CE7" stroke-width="2.2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#6C5CE7" stroke-width="2.2"/></svg>
+          </div>
+          <div>
+            <p class="font-display font-semibold text-[15px] text-ink mb-0.5">Freeze in one tap</p>
+            <p class="text-soft text-[14px] leading-relaxed">Every new charge gets declined the instant you flip the switch.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-peach/30 flex items-center justify-center flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="#C24E2A" stroke-width="2.2" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="#C24E2A" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <p class="font-display font-semibold text-[15px] text-ink mb-0.5">Real-time push alerts</p>
+            <p class="text-soft text-[14px] leading-relaxed">Know about a charge before the cashier hands you the receipt.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-10 h-10 rounded-xl bg-mint/25 flex items-center justify-center flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#1D9E75" stroke-width="2.2"/><path d="M12 8v4l3 2" stroke="#1D9E75" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <p class="font-display font-semibold text-[15px] text-ink mb-0.5">Set limits, by category</p>
+            <p class="text-soft text-[14px] leading-relaxed">Cap dining, shopping, or subscriptions without touching the rest.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card demo -->
+    <div class="relative mx-auto w-full max-w-[320px]" data-aos="fade-up" data-aos-delay="100">
+      <div id="freezeToastWrap" class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex justify-center w-max"></div>
+
+      <div id="demoCard" class="demo-card relative rounded-[28px] p-6 sm:p-7 shadow-2xl bg-gradient-to-br from-violet to-violetdeep overflow-hidden aspect-[1.55/1] flex flex-col justify-between">
+        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-peach/20"></div>
+        <div class="flex items-start justify-between relative z-10">
+          <svg width="34" height="26" viewBox="0 0 34 26" fill="none"><rect x="0.5" y="0.5" width="33" height="25" rx="5" fill="#FFD9A0" stroke="#C9963F" stroke-width="0.5"/><path d="M0 9h34M12 0v26M22 0v26" stroke="#C9963F" stroke-width="0.6"/></svg>
+          <span class="font-display font-semibold text-white/90 text-[15px] tracking-wide">Violet</span>
+        </div>
+        <div class="relative z-10">
+          <p class="text-white/80 font-display tracking-[0.2em] text-[15px] sm:text-[17px] mb-4">•••• &nbsp; •••• &nbsp; •••• &nbsp; 4821</p>
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="text-white/50 text-[10px] uppercase tracking-wide mb-0.5">Card holder</p>
+              <p class="text-white font-display font-semibold text-[13.5px]">A. Morgan</p>
+            </div>
+            <div>
+              <p class="text-white/50 text-[10px] uppercase tracking-wide mb-0.5">Expires</p>
+              <p class="text-white font-display font-semibold text-[13.5px]">09/29</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="frostOverlay" class="frost-overlay absolute inset-0 z-20 flex items-center justify-center">
+          <div class="w-11 h-11 rounded-full bg-white/80 flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="#4B3FBF" stroke-width="2.2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#4B3FBF" stroke-width="2.2"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <button id="freezeToggle" class="mt-6 w-full flex items-center justify-between bg-bg rounded-2xl px-5 py-4 border border-ink/5">
+        <span class="font-display font-semibold text-[14.5px] text-ink">Freeze this card</span>
+        <span class="freeze-switch flex-shrink-0"></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEW SECTION 2: Final CTA ============ -->
+<section class="relative bg-violet overflow-hidden">
+  <div class="absolute top-10 left-[6%] w-14 h-14 sm:w-24 sm:h-24 rounded-[45%_55%_60%_40%/40%_45%_55%_60%] bg-white/10 animate-floaty"></div>
+  <div class="absolute bottom-16 right-[8%] w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-white/10 animate-drift"></div>
+  <div class="absolute top-1/2 right-[20%] w-7 h-7 sm:w-10 sm:h-10 rounded-[40%_60%_55%_45%/45%_40%_60%_55%] bg-peach/30 animate-drift"></div>
+
+  <div class="max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center relative z-10" data-aos="fade-up">
+    <h2 class="text-[30px] sm:text-[42px] leading-[1.15] font-semibold text-white mb-5">
+      Open your account in about four minutes. No paperwork, no branch.
+    </h2>
+    <p class="text-white/80 text-[16px] sm:text-[17px] max-w-xl mx-auto mb-9 leading-relaxed">
+      Everything above — the savings, the CDs, the checking account with no monthly fee — starts with one form. Your first deposit can wait until you're ready.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+      <a href="#" class="btn-pop bg-white text-violetdeep font-display font-semibold text-[16px] px-8 py-4 rounded-full shadow-[0_5px_0_0_#E4DEFB]">Open a free account</a>
+      <a href="#" class="btn-pop bg-transparent text-white font-display font-semibold text-[16px] px-8 py-4 rounded-full border-2 border-white/30">Talk to someone first</a>
+    </div>
+    <p class="text-[13.5px] text-white/60">No minimum balance · No monthly fees · Member FDIC</p>
+  </div>
+
+  <svg class="w-full" viewBox="0 0 1440 80" preserveAspectRatio="none" style="height:48px;">
+    <path d="M0,40 C240,0 480,80 720,40 C960,0 1200,60 1440,20 L1440,80 L0,80 Z" fill="#2D2A3D"/>
+  </svg>
+</section>
+
+<footer class="bg-ink text-white/70 pt-14 pb-8">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+      <div class="lg:col-span-2">
+        <a href="#" class="flex items-center gap-2 font-display font-semibold text-2xl text-white mb-4">
+          <svg width="28" height="28" viewBox="0 0 30 30" fill="none">
+            <circle cx="15" cy="15" r="14" fill="#6C5CE7"/>
+            <path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Violet
+        </a>
+        <p class="text-[14px] leading-relaxed max-w-xs">Online banking built to feel human. Savings, checking, and CDs with no monthly fees and no branch required.</p>
+      </div>
+      <div>
+        <p class="font-display font-semibold text-white text-[14px] mb-4">Accounts</p>
+        <ul class="space-y-3 text-[14px]">
+          <li><a href="#" class="hover:text-white transition">Online savings</a></li>
+          <li><a href="#" class="hover:text-white transition">Certificates of deposit</a></li>
+          <li><a href="#" class="hover:text-white transition">Checking</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-display font-semibold text-white text-[14px] mb-4">Company</p>
+        <ul class="space-y-3 text-[14px]">
+          <li><a href="#" class="hover:text-white transition">About</a></li>
+          <li><a href="#" class="hover:text-white transition">Rates</a></li>
+          <li><a href="#" class="hover:text-white transition">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-display font-semibold text-white text-[14px] mb-4">Support</p>
+        <ul class="space-y-3 text-[14px]">
+          <li><a href="#" class="hover:text-white transition">Help center</a></li>
+          <li><a href="#" class="hover:text-white transition">Contact us</a></li>
+          <li><a href="#" class="hover:text-white transition">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-4 pt-8 border-t border-white/10 text-[12.5px]">
+      <p>&copy; 2026 Violet Bank. Member FDIC. Equal Housing Lender.</p>
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-white transition">Privacy</a>
+        <a href="#" class="hover:text-white transition">Terms</a>
+        <a href="#" class="hover:text-white transition">Accessibility</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script>
+  AOS.init({ once: false, mirror: true, offset: 40, duration: 650, easing: 'ease-out-cubic' });
+
+  /* ================= Mobile nav menu ================= */
+  (function(){
+    const btn = document.getElementById('mobileMenuBtn');
+    const menu = document.getElementById('mobileMenu');
+    if(!btn || !menu) return;
+    const iconOpen = document.getElementById('mobileMenuIconOpen');
+    const iconClose = document.getElementById('mobileMenuIconClose');
+    let open = false;
+
+    function setOpen(v){
+      open = v;
+      menu.classList.toggle('hidden', !open);
+      iconOpen.classList.toggle('hidden', open);
+      iconClose.classList.toggle('hidden', !open);
+      btn.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    btn.addEventListener('click', () => setOpen(!open));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+    window.addEventListener('resize', () => { if(window.innerWidth >= 1024 && open) setOpen(false); });
+  })();
+
+  const apyEls = document.querySelectorAll('.apy-count');
+  const apyObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseFloat(el.dataset.target);
+        const duration = 900;
+        const start = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = (target * eased).toFixed(2);
+          if (progress < 1) requestAnimationFrame(tick);
+          else el.textContent = target.toFixed(2);
+        }
+        requestAnimationFrame(tick);
+        apyObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.6 });
+  apyEls.forEach(el => apyObserver.observe(el));
+
+  /* ================= Spaces round-up feed ================= */
+  (function(){
+    const list = document.getElementById('roundupList');
+    if(!list) return;
+
+    const feed = [
+      { icon: '☕', label: 'Corner Coffee Co.', amount: '0.35' },
+      { icon: '🛒', label: 'Riverside Market', amount: '0.62' },
+      { icon: '⛽', label: 'Shell on 5th', amount: '0.18' },
+      { icon: '🥐', label: 'Baker Street Bakery', amount: '0.45' },
+      { icon: '🚕', label: 'City Rideshare', amount: '0.71' },
+      { icon: '🍜', label: 'Noodle House', amount: '0.29' },
+      { icon: '📚', label: 'Chapters Books', amount: '0.53' },
+    ];
+    let i = 0;
+    const MAX_ITEMS = 3;
+
+    function addItem(){
+      const item = feed[i % feed.length];
+      i++;
+
+      const row = document.createElement('div');
+      row.className = 'roundup-item flex items-center gap-3 bg-bg rounded-xl px-3 py-2.5';
+      row.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[15px] flex-shrink-0">${item.icon}</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[12.5px] font-semibold text-ink truncate">${item.label}</p>
+          <p class="text-[11px] text-soft">Round-up</p>
+        </div>
+        <p class="text-[12.5px] font-display font-semibold text-violet flex-shrink-0">+$${item.amount}</p>
+      `;
+      list.prepend(row);
+
+      while(list.children.length > MAX_ITEMS){
+        list.removeChild(list.lastChild);
+      }
+    }
+
+    addItem();
+    setTimeout(addItem, 600);
+    setInterval(addItem, 2600);
+  })();
+
+  /* ================= Card freeze demo ================= */
+  (function(){
+    const card = document.getElementById('demoCard');
+    if(!card) return;
+    const overlay = document.getElementById('frostOverlay');
+    const toggle = document.getElementById('freezeToggle');
+    const toggleSwitch = toggle.querySelector('.freeze-switch');
+    const toastWrap = document.getElementById('freezeToastWrap');
+
+    let frozen = false;
+    let autoTimer = null;
+
+    function showToast(msg){
+      toastWrap.innerHTML = '';
+      const t = document.createElement('div');
+      t.className = 'toast-pop bg-ink text-white text-[12.5px] font-semibold px-4 py-2 rounded-full shadow-lg';
+      t.textContent = msg;
+      toastWrap.appendChild(t);
+      setTimeout(() => { if(toastWrap.contains(t)) toastWrap.removeChild(t); }, 2900);
+    }
+
+    function setFrozen(v){
+      frozen = v;
+      card.classList.toggle('frozen', frozen);
+      overlay.classList.toggle('active', frozen);
+      toggleSwitch.classList.toggle('on', frozen);
+      showToast(frozen ? '🔒 Card frozen' : '🔓 Card unfrozen');
+    }
+
+    function restartAuto(){
+      if(autoTimer) clearInterval(autoTimer);
+      autoTimer = setInterval(() => setFrozen(!frozen), 4500);
+    }
+
+    toggle.addEventListener('click', () => { setFrozen(!frozen); restartAuto(); });
+
+    restartAuto();
+  })();
+
+  /* ================= Testimonial slider ================= */
+  (function(){
+    const track = document.getElementById('tTrack');
+    if(!track) return;
+    const slides = Array.from(track.querySelectorAll('.t-slide'));
+    const segWrap = document.getElementById('tSegments');
+    const prevBtn = document.getElementById('tPrev');
+    const nextBtn = document.getElementById('tNext');
+    const counter = document.getElementById('tCounter');
+    const slider = document.getElementById('tSlider');
+    const AUTOPLAY_MS = 5500;
+    let index = 0;
+    let timer = null;
+    let paused = false;
+
+    slides.forEach((_, i) => {
+      const seg = document.createElement('button');
+      seg.className = 'seg-bar';
+      seg.setAttribute('aria-label', 'Go to testimonial ' + (i + 1));
+      const fill = document.createElement('div');
+      fill.className = 'seg-fill';
+      seg.appendChild(fill);
+      seg.addEventListener('click', () => goTo(i));
+      segWrap.appendChild(seg);
+    });
+    const segFills = segWrap.querySelectorAll('.seg-fill');
+
+    function renderSlides(){
+      track.style.transform = `translateX(-${index * 100}%)`;
+      slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
+      counter.textContent = (index + 1) + ' / ' + slides.length;
+    }
+
+    function updateSegments(){
+      segFills.forEach((f, i) => {
+        f.classList.remove('playing');
+        f.style.transition = 'none';
+        f.style.width = i < index ? '100%' : '0%';
+      });
+    }
+
+    function playCurrentSegment(){
+      const f = segFills[index];
+      if(!f) return;
+      requestAnimationFrame(() => {
+        f.style.transition = 'none';
+        f.style.width = '0%';
+        requestAnimationFrame(() => {
+          if(!paused){
+            f.classList.add('playing');
+            f.style.width = '100%';
+          }
+        });
+      });
+    }
+
+    function goTo(i, restart = true){
+      index = (i + slides.length) % slides.length;
+      renderSlides();
+      updateSegments();
+      playCurrentSegment();
+      if(restart) restartAutoplay();
+    }
+
+    function next(){ goTo(index + 1); }
+    function prev(){ goTo(index - 1); }
+
+    function restartAutoplay(){
+      if(timer) clearInterval(timer);
+      timer = setInterval(next, AUTOPLAY_MS);
+    }
+
+    function pause(){
+      paused = true;
+      if(timer) clearInterval(timer);
+      const f = segFills[index];
+      if(f){
+        const computedWidth = getComputedStyle(f).width;
+        f.style.transition = 'none';
+        f.style.width = computedWidth;
+        f.classList.remove('playing');
+      }
+    }
+
+    function resume(){
+      paused = false;
+      playCurrentSegment();
+      restartAutoplay();
+    }
+
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+
+    slider.addEventListener('mouseenter', pause);
+    slider.addEventListener('mouseleave', resume);
+    slider.addEventListener('focusin', pause);
+    slider.addEventListener('focusout', resume);
+
+    slider.setAttribute('tabindex', '0');
+    slider.addEventListener('keydown', e => {
+      if(e.key === 'ArrowRight') next();
+      if(e.key === 'ArrowLeft') prev();
+    });
+
+    // swipe support
+    let touchStartX = null;
+    slider.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; pause(); }, {passive:true});
+    slider.addEventListener('touchend', e => {
+      if(touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if(Math.abs(dx) > 40){ dx < 0 ? next() : prev(); } else { resume(); }
+      touchStartX = null;
+    }, {passive:true});
+
+    goTo(0);
+    restartAutoplay();
+  })();
+</script>
+
+</body>
+</html>

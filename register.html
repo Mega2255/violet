@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create your account — Violet Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg:     '#FAF8FF',
+          violet: '#6C5CE7',
+          violetdeep: '#4B3FBF',
+          peach:  '#FFB199',
+          mint:   '#7FD9BE',
+          sky:    '#8ED2F0',
+          ink:    '#2D2A3D',
+          soft:   '#6E6A7C',
+        },
+        fontFamily: {
+          display: ['Poppins','sans-serif'],
+          sans: ['Inter','sans-serif'],
+        },
+        keyframes: {
+          floaty:  { '0%,100%':{transform:'translateY(0) translateX(0)'}, '50%':{transform:'translateY(-18px) translateX(6px)'} },
+          drift:   { '0%,100%':{transform:'translate(0,0) rotate(0deg) scale(1)'}, '50%':{transform:'translate(14px,-12px) rotate(8deg) scale(1.05)'} },
+          shake:   { '0%,100%':{transform:'translateX(0)'}, '20%':{transform:'translateX(-6px)'}, '40%':{transform:'translateX(6px)'}, '60%':{transform:'translateX(-4px)'}, '80%':{transform:'translateX(4px)'} },
+          popIn:   { '0%':{transform:'scale(.6)', opacity:'0'}, '60%':{transform:'scale(1.08)'}, '100%':{transform:'scale(1)', opacity:'1'} },
+          confetti:{ '0%':{transform:'translateY(0) rotate(0deg)', opacity:'1'}, '100%':{transform:'translateY(-140px) rotate(300deg)', opacity:'0'} },
+          spin:    { '100%':{transform:'rotate(360deg)'} },
+        },
+        animation: {
+          floaty: 'floaty 6s ease-in-out infinite',
+          drift: 'drift 8s ease-in-out infinite',
+          shake: 'shake .4s ease',
+          popIn: 'popIn .5s cubic-bezier(.34,1.56,.64,1) forwards',
+          spinslow: 'spin 1s linear infinite',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html{scroll-behavior:smooth;}
+  body{background:#FAF8FF; color:#2D2A3D; font-family:'Inter',sans-serif;}
+  h1,h2,h3,.font-display{font-family:'Poppins',sans-serif;}
+
+  .btn-pop{transition:transform .2s ease, box-shadow .2s ease;}
+  .btn-pop:hover{transform:translateY(-2px);}
+  .btn-pop:active{transform:translateY(0) scale(.98);}
+  .btn-pop:disabled{opacity:.55; cursor:not-allowed; transform:none;}
+
+  .field-underline{position:absolute; bottom:0; left:0; height:2px; width:0; background:linear-gradient(90deg,#6C5CE7,#8ED2F0); transition:width .35s ease;}
+  .field input:focus ~ .field-underline, .field select:focus ~ .field-underline{width:100%;}
+  .field input, .field select{transition:border-color .2s ease;}
+
+  select.field-select{ -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6A7C' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 2px center; background-size:16px;}
+
+  /* step transitions */
+  .step-panel{transition:transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+  .step-enter-right{transform:translateX(24px); opacity:0;}
+  .step-enter-left{transform:translateX(-24px); opacity:0;}
+  .step-current{transform:translateX(0); opacity:1;}
+
+  /* progress dial */
+  .dial-seg{transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1);}
+
+  /* strength bar */
+  .strength-fill{transition:width .35s ease, background-color .35s ease;}
+
+  /* glass card */
+  .glass{background:rgba(255,255,255,0.75); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);}
+
+  /* success check draw */
+  .check-draw{stroke-dasharray:24; stroke-dashoffset:24; transition:stroke-dashoffset .5s ease .15s;}
+  .check-draw.done{stroke-dashoffset:0;}
+
+  /* confetti dots */
+  .confetti-dot{position:absolute; width:6px; height:6px; border-radius:50%; opacity:0;}
+
+  /* account number chip */
+  .acct-chip{ letter-spacing:.06em; font-variant-numeric:tabular-nums; }
+
+  @media (prefers-reduced-motion: reduce){
+    .animate-floaty, .animate-drift, .animate-spinslow{ animation:none !important; }
+  }
+</style>
+</head>
+<body class="overflow-x-hidden min-h-screen relative">
+
+<!-- Ambient background mesh -->
+<div class="fixed inset-0 -z-10 overflow-hidden">
+  <div class="absolute -top-24 -left-24 w-[380px] h-[380px] rounded-full bg-violet/25 blur-3xl animate-drift"></div>
+  <div class="absolute top-1/3 -right-20 w-[320px] h-[320px] rounded-full bg-peach/25 blur-3xl animate-floaty"></div>
+  <div class="absolute bottom-[-6rem] left-1/4 w-[340px] h-[340px] rounded-full bg-mint/25 blur-3xl animate-drift"></div>
+  <div class="absolute bottom-1/4 right-1/3 w-[220px] h-[220px] rounded-full bg-sky/25 blur-3xl animate-floaty"></div>
+</div>
+
+<div class="min-h-screen grid lg:grid-cols-[1fr_1.08fr]">
+
+  <!-- ============ Left: brand / progress story ============ -->
+  <aside class="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-violet via-violetdeep to-[#3A3078] px-12 py-10 text-white">
+    <div class="absolute top-16 left-[10%] w-28 h-28 rounded-[38%_62%_65%_35%/45%_40%_60%_55%] bg-white/10 animate-drift"></div>
+    <div class="absolute bottom-24 right-[8%] w-24 h-24 rounded-[45%_55%_60%_40%/40%_45%_55%_60%] bg-peach/20 animate-floaty"></div>
+    <div class="absolute top-1/2 right-[16%] w-14 h-14 rounded-full bg-sky/25 animate-drift"></div>
+
+    <a href="#" class="relative z-10 flex items-center gap-2 font-display font-semibold text-2xl">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="14" fill="white" fill-opacity="0.15"/>
+        <path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Violet
+    </a>
+
+    <div class="relative z-10 max-w-md">
+      <h1 id="asideHeadline" class="text-[32px] leading-[1.2] font-semibold mb-4 transition-opacity duration-300">Let's open your account.<br/>Takes about a minute.</h1>
+      <p id="asideSub" class="text-white/75 text-[15.5px] leading-relaxed mb-10 transition-opacity duration-300">Free checking, savings that actually pays you, and a card you can freeze from your phone.</p>
+
+      <!-- progress steps with dial -->
+      <div class="flex items-center gap-5">
+        <svg width="64" height="64" viewBox="0 0 64 64" class="flex-shrink-0">
+          <circle cx="32" cy="32" r="27" stroke="white" stroke-opacity="0.18" stroke-width="4" fill="none"/>
+          <circle id="asideDial" cx="32" cy="32" r="27" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"
+            stroke-dasharray="169.6" stroke-dashoffset="169.6" transform="rotate(-90 32 32)" class="dial-seg"/>
+          <text id="asideDialLabel" x="32" y="37" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="14" fill="white">1/5</text>
+        </svg>
+        <ul class="space-y-2 text-[14px]">
+          <li id="stepLabel1" class="flex items-center gap-2 font-semibold text-white">
+            <span class="w-1.5 h-1.5 rounded-full bg-white"></span> You, in brief
+          </li>
+          <li id="stepLabel2" class="flex items-center gap-2 text-white/50">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span> Where you live
+          </li>
+          <li id="stepLabel3" class="flex items-center gap-2 text-white/50">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span> Work life
+          </li>
+          <li id="stepLabel4" class="flex items-center gap-2 text-white/50">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span> Secure it
+          </li>
+          <li id="stepLabel5" class="flex items-center gap-2 text-white/50">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span> Review &amp; confirm
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="relative z-10 text-[12.5px] text-white/50">&copy; 2026 Violet Bank. Member FDIC. Equal Housing Lender.</p>
+  </aside>
+
+  <!-- ============ Right: form ============ -->
+  <main class="relative flex items-center justify-center px-5 sm:px-8 py-10 sm:py-14">
+    <div class="absolute top-5 sm:top-6 left-5 sm:left-8 lg:hidden flex items-center gap-2 font-display font-semibold text-xl text-ink">
+      <svg width="26" height="26" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="14" fill="#6C5CE7"/>
+        <path d="M9 16.5 12 20 21 10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Violet
+    </div>
+
+    <div class="w-full max-w-[440px] mt-14 sm:mt-16 lg:mt-0">
+
+      <!-- mobile step dots -->
+      <div id="mobileSteps" class="flex lg:hidden items-center justify-center gap-2 mb-7">
+        <span data-dot="1" class="h-1.5 w-7 rounded-full bg-violet transition-colors"></span>
+        <span data-dot="2" class="h-1.5 w-7 rounded-full bg-ink/10 transition-colors"></span>
+        <span data-dot="3" class="h-1.5 w-7 rounded-full bg-ink/10 transition-colors"></span>
+        <span data-dot="4" class="h-1.5 w-7 rounded-full bg-ink/10 transition-colors"></span>
+        <span data-dot="5" class="h-1.5 w-7 rounded-full bg-ink/10 transition-colors"></span>
+      </div>
+
+      <div class="glass rounded-[26px] sm:rounded-[28px] p-6 sm:p-9 shadow-xl border border-white/60 relative overflow-hidden">
+        <div class="absolute -top-14 -right-14 w-40 h-40 rounded-full bg-violet/10 pointer-events-none"></div>
+
+        <!-- ===== STEP 1: personal details ===== -->
+        <section id="step1" class="step-panel step-current relative z-10">
+          <p class="text-violet font-semibold text-[12.5px] uppercase tracking-wide mb-2">Step 1 of 5</p>
+          <h2 class="text-[24px] sm:text-[26px] font-semibold text-ink mb-1.5">Create your account</h2>
+          <p class="text-soft text-[14px] sm:text-[14.5px] mb-7">First, the basics about you.</p>
+
+          <div id="step1Alert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+          <div class="field relative mb-5">
+            <label for="fullName" class="block text-[13px] font-semibold text-ink mb-1.5">Full name</label>
+            <input id="fullName" type="text" autocomplete="name" placeholder="Jamie Rivera"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+            <p id="fullNameError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <div class="field relative mb-5">
+            <label for="regEmail" class="block text-[13px] font-semibold text-ink mb-1.5">Email</label>
+            <input id="regEmail" type="email" autocomplete="email" placeholder="you@email.com"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+            <p id="regEmailError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <div class="field relative mb-5">
+            <label for="phoneNumber" class="block text-[13px] font-semibold text-ink mb-1.5">Phone number</label>
+            <input id="phoneNumber" type="tel" autocomplete="tel" placeholder="+234 801 234 5678"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+            <p id="phoneNumberError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <div class="field relative mb-2">
+            <label for="dob" class="block text-[13px] font-semibold text-ink mb-1.5">Date of birth</label>
+            <input id="dob" type="date"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink focus:border-transparent" />
+            <span class="field-underline"></span>
+            <p id="dobError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <button id="toStep2Btn" type="button" class="btn-pop w-full mt-7 bg-violet text-white font-display font-semibold text-[15.5px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Continue</button>
+
+          <p class="text-center text-[14px] text-soft mt-7">Already have an account? <a href="login.html" class="font-semibold text-violet hover:text-violetdeep transition">Sign in</a></p>
+        </section>
+
+        <!-- ===== STEP 2: address ===== -->
+        <section id="step2" class="step-panel step-enter-right hidden relative z-10">
+          <button type="button" data-back="1" class="flex items-center gap-1.5 text-soft hover:text-ink text-[13.5px] font-semibold mb-5 transition">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg> Back
+          </button>
+          <p class="text-violet font-semibold text-[12.5px] uppercase tracking-wide mb-2">Step 2 of 5</p>
+          <h2 class="text-[24px] sm:text-[26px] font-semibold text-ink mb-1.5">Where should we reach you?</h2>
+          <p class="text-soft text-[14px] sm:text-[14.5px] mb-6">Your address helps us verify who you are.</p>
+
+          <div id="step2Alert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+          <div class="field relative mb-5">
+            <label for="country" class="block text-[13px] font-semibold text-ink mb-1.5">Country</label>
+            <select id="country" class="field-select w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink focus:border-transparent">
+              <option value="" disabled selected>Select your country</option>
+            </select>
+            <span class="field-underline"></span>
+            <p id="countryError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <div class="field relative mb-5">
+            <label for="currency" class="block text-[13px] font-semibold text-ink mb-1.5">Preferred currency</label>
+            <select id="currency" class="field-select w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink focus:border-transparent">
+              <option value="" disabled selected>Select a currency</option>
+            </select>
+            <span class="field-underline"></span>
+            <p class="mt-1.5 text-[12px] text-soft">This is the currency your account balance will be shown in.</p>
+            <p id="currencyError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <div class="field relative mb-5">
+            <label for="address" class="block text-[13px] font-semibold text-ink mb-1.5">Street address</label>
+            <input id="address" type="text" autocomplete="street-address" placeholder="14 Admiralty Way"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+            <p id="addressError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-5">
+            <div class="field relative">
+              <label for="city" class="block text-[13px] font-semibold text-ink mb-1.5">City</label>
+              <input id="city" type="text" autocomplete="address-level2" placeholder="Lagos"
+                class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+              <span class="field-underline"></span>
+              <p id="cityError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+            </div>
+            <div class="field relative">
+              <label for="state" class="block text-[13px] font-semibold text-ink mb-1.5">State / Region</label>
+              <input id="state" type="text" autocomplete="address-level1" placeholder="Lagos State"
+                class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+              <span class="field-underline"></span>
+              <p id="stateError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+            </div>
+          </div>
+
+          <div class="field relative mb-2">
+            <label for="postalCode" class="block text-[13px] font-semibold text-ink mb-1.5">Postal / ZIP code</label>
+            <input id="postalCode" type="text" autocomplete="postal-code" placeholder="100001"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+            <p id="postalCodeError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <button id="toStep3Btn" type="button" class="btn-pop w-full mt-6 bg-violet text-white font-display font-semibold text-[15.5px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Continue</button>
+        </section>
+
+        <!-- ===== STEP 3: employment ===== -->
+        <section id="step3" class="step-panel step-enter-right hidden relative z-10">
+          <button type="button" data-back="2" class="flex items-center gap-1.5 text-soft hover:text-ink text-[13.5px] font-semibold mb-5 transition">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg> Back
+          </button>
+          <p class="text-violet font-semibold text-[12.5px] uppercase tracking-wide mb-2">Step 3 of 5</p>
+          <h2 class="text-[24px] sm:text-[26px] font-semibold text-ink mb-1.5">Tell us about your work</h2>
+          <p class="text-soft text-[14px] sm:text-[14.5px] mb-6">This helps us tailor limits and offers to you.</p>
+
+          <div id="step3Alert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+          <div class="field relative mb-5">
+            <label for="employmentStatus" class="block text-[13px] font-semibold text-ink mb-1.5">Employment status</label>
+            <select id="employmentStatus" class="field-select w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink focus:border-transparent">
+              <option value="" disabled selected>Select your status</option>
+              <option value="Employed full-time">Employed full-time</option>
+              <option value="Employed part-time">Employed part-time</option>
+              <option value="Self-employed">Self-employed</option>
+              <option value="Student">Student</option>
+              <option value="Unemployed">Unemployed</option>
+              <option value="Retired">Retired</option>
+            </select>
+            <span class="field-underline"></span>
+            <p id="employmentStatusError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <div class="field relative mb-2">
+            <label for="occupation" class="block text-[13px] font-semibold text-ink mb-1.5">Occupation / Employer <span class="text-soft font-normal">(optional)</span></label>
+            <input id="occupation" type="text" placeholder="Product designer at Acme"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+          </div>
+
+          <button id="toStep4Btn" type="button" class="btn-pop w-full mt-7 bg-violet text-white font-display font-semibold text-[15.5px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Continue</button>
+        </section>
+
+        <!-- ===== STEP 4: password ===== -->
+        <section id="step4" class="step-panel step-enter-right hidden relative z-10">
+          <button type="button" data-back="3" class="flex items-center gap-1.5 text-soft hover:text-ink text-[13.5px] font-semibold mb-5 transition">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg> Back
+          </button>
+          <p class="text-violet font-semibold text-[12.5px] uppercase tracking-wide mb-2">Step 4 of 5</p>
+          <h2 class="text-[24px] sm:text-[26px] font-semibold text-ink mb-1.5">Secure your account</h2>
+          <p class="text-soft text-[14px] sm:text-[14.5px] mb-6">Pick a password only you would know.</p>
+
+          <div id="step4Alert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+          <div class="field relative mb-2">
+            <label for="regPassword" class="block text-[13px] font-semibold text-ink mb-1.5">Password</label>
+            <input id="regPassword" type="password" autocomplete="new-password" placeholder="••••••••"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 pr-9 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+            <button type="button" id="toggleRegPassword" aria-label="Show password" class="absolute right-0 bottom-2.5 text-soft hover:text-ink transition">
+              <svg id="regEyeOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="regEyeClosed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 4.22-5.94M9.9 4.24A10.6 10.6 0 0 1 12 4c7 0 11 8 11 8a20.5 20.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+
+          <!-- strength meter -->
+          <div class="mb-4">
+            <div class="h-1.5 w-full bg-ink/10 rounded-full overflow-hidden mb-1.5">
+              <div id="strengthFill" class="strength-fill h-full w-0 bg-rose-400 rounded-full"></div>
+            </div>
+            <p id="strengthLabel" class="text-[12px] text-soft">Password strength</p>
+          </div>
+
+          <ul class="grid grid-cols-2 gap-y-1.5 gap-x-2 mb-6 text-[12.5px] text-soft">
+            <li id="ruleLength" class="flex items-center gap-1.5"><span class="rule-dot w-3.5 h-3.5 rounded-full border-2 border-ink/20 flex-shrink-0"></span>8+ characters</li>
+            <li id="ruleUpper" class="flex items-center gap-1.5"><span class="rule-dot w-3.5 h-3.5 rounded-full border-2 border-ink/20 flex-shrink-0"></span>One uppercase</li>
+            <li id="ruleNumber" class="flex items-center gap-1.5"><span class="rule-dot w-3.5 h-3.5 rounded-full border-2 border-ink/20 flex-shrink-0"></span>One number</li>
+            <li id="ruleSymbol" class="flex items-center gap-1.5"><span class="rule-dot w-3.5 h-3.5 rounded-full border-2 border-ink/20 flex-shrink-0"></span>One symbol</li>
+          </ul>
+
+          <div class="field relative mb-2">
+            <label for="regConfirm" class="block text-[13px] font-semibold text-ink mb-1.5">Confirm password</label>
+            <input id="regConfirm" type="password" autocomplete="new-password" placeholder="••••••••"
+              class="w-full bg-transparent border-b-2 border-ink/15 pb-2.5 pr-9 text-[15px] text-ink placeholder:text-soft/50 focus:border-transparent" />
+            <span class="field-underline"></span>
+            <svg id="confirmMatchIcon" class="hidden absolute right-0 bottom-3 scale-0 transition-transform" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <p id="regConfirmError" class="hidden mt-1.5 text-[12.5px] text-rose-600"></p>
+          </div>
+
+          <button id="toStep5Btn" type="button" class="btn-pop w-full mt-6 bg-violet text-white font-display font-semibold text-[15.5px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Continue</button>
+        </section>
+
+        <!-- ===== STEP 5: review + submit ===== -->
+        <section id="step5" class="step-panel step-enter-right hidden relative z-10">
+          <button type="button" data-back="4" class="flex items-center gap-1.5 text-soft hover:text-ink text-[13.5px] font-semibold mb-5 transition">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg> Back
+          </button>
+          <p class="text-violet font-semibold text-[12.5px] uppercase tracking-wide mb-2">Step 5 of 5</p>
+          <h2 class="text-[24px] sm:text-[26px] font-semibold text-ink mb-1.5">Almost there</h2>
+          <p class="text-soft text-[14px] sm:text-[14.5px] mb-5">Review your details before we create your account.</p>
+
+          <div id="step5Alert" class="hidden mb-4 rounded-xl px-4 py-3 text-[13px] font-medium"></div>
+
+          <div id="reviewBox" class="bg-bg/70 rounded-2xl p-4 mb-6 text-[13.5px] space-y-2 max-h-[260px] overflow-y-auto"></div>
+
+          <label class="flex items-start gap-2.5 text-[13px] text-soft mb-7 cursor-pointer select-none">
+            <input id="agreeTerms" type="checkbox" class="w-4 h-4 mt-0.5 rounded border-ink/20 text-violet focus:ring-violet/40 flex-shrink-0" />
+            <span>I agree to Violet's <a href="#" class="text-violet font-semibold hover:text-violetdeep">Terms of Service</a> and <a href="#" class="text-violet font-semibold hover:text-violetdeep">Privacy Policy</a>.</span>
+          </label>
+          <p id="agreeTermsError" class="hidden -mt-5 mb-5 text-[12.5px] text-rose-600"></p>
+
+          <button id="createAccountBtn" type="button" class="btn-pop w-full flex items-center justify-center gap-2 bg-violet text-white font-display font-semibold text-[15.5px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">
+            <svg id="createSpinner" class="hidden animate-spinslow" width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-opacity="0.3" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+            <span id="createLabel">Create account</span>
+          </button>
+        </section>
+
+        <!-- ===== STEP 6: success + account preview ===== -->
+        <section id="step6" class="step-panel step-enter-right hidden relative z-10 text-center">
+          <div class="relative w-20 h-20 mx-auto mb-5">
+            <div id="confettiHost" class="absolute inset-0"></div>
+            <div class="w-20 h-20 rounded-full bg-mint/20 flex items-center justify-center animate-popIn">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path class="check-draw" id="successCheck" d="M4 12.5 9.5 18 20 6.5" stroke="#1D9E75" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <h2 class="text-[23px] sm:text-[25px] font-semibold text-ink mb-2">You're all set<span id="successName"></span>!</h2>
+          <p class="text-soft text-[14px] sm:text-[14.5px] leading-relaxed mb-6 px-1">Your Violet account has been created. Here's everything on file.</p>
+
+          <div class="bg-gradient-to-br from-violet to-violetdeep rounded-2xl p-5 mb-6 text-left text-white relative overflow-hidden">
+            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/10"></div>
+            <p class="text-white/70 text-[12px] font-semibold uppercase tracking-wide mb-1.5">Account number</p>
+            <div class="flex items-center justify-between gap-3">
+              <p id="acctNumberDisplay" class="acct-chip font-display font-semibold text-[22px]"></p>
+              <button id="copyAcctBtn" type="button" class="text-[12px] font-semibold bg-white/15 hover:bg-white/25 transition rounded-full px-3 py-1.5 flex-shrink-0">Copy</button>
+            </div>
+          </div>
+
+          <div id="finalReviewBox" class="bg-bg/70 rounded-2xl p-4 mb-7 text-[13.5px] text-left space-y-2 max-h-[260px] overflow-y-auto"></div>
+
+          <button id="continueToDashboardBtn" type="button" class="btn-pop w-full bg-violet text-white font-display font-semibold text-[15.5px] py-3.5 rounded-full shadow-[0_5px_0_0_#4B3FBF]">Continue to dashboard</button>
+        </section>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ Toast ============ -->
+<div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center px-4 w-full sm:w-auto"></div>
+
+<!-- ============ Firebase ============ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    updateProfile,
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // TODO: replace with your own Firebase project config
+  // (Project settings → General → Your apps → SDK setup and configuration)
+  // Make sure "Realtime Database" is enabled and Email/Password sign-in is on.
+  const firebaseConfig = {
+    apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
+  authDomain: "orizonpay-60113.firebaseapp.com",
+  projectId: "orizonpay-60113",
+  storageBucket: "orizonpay-60113.firebasestorage.app",
+  messagingSenderId: "1026303657239",
+  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  /* ---------- helpers ---------- */
+  const $ = (id) => document.getElementById(id);
+  const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const isValidPhone = (v) => /^[+()\-\s0-9]{7,20}$/.test(v);
+
+  function showToast(message, tone = "ink") {
+    const wrap = $("toastWrap");
+    const el = document.createElement("div");
+    const tones = { ink: "bg-ink text-white", mint: "bg-emerald-600 text-white", rose: "bg-rose-600 text-white" };
+    el.className = `${tones[tone] || tones.ink} text-[13.5px] font-semibold px-5 py-3 rounded-full shadow-lg max-w-[92vw] text-center`;
+    el.style.animation = "popIn .3s ease forwards";
+    el.textContent = message;
+    wrap.appendChild(el);
+    setTimeout(() => {
+      el.style.transition = "opacity .3s ease, transform .3s ease";
+      el.style.opacity = "0";
+      el.style.transform = "translateY(8px)";
+      setTimeout(() => el.remove(), 300);
+    }, 3400);
+  }
+
+  function setAlert(el, message, tone = "rose") {
+    if (!message) { el.classList.add("hidden"); el.textContent = ""; return; }
+    const tones = { rose: "bg-rose-50 text-rose-700", violet: "bg-violet/10 text-violetdeep", mint: "bg-mint/20 text-emerald-700" };
+    el.className = `mb-4 rounded-xl px-4 py-3 text-[13px] font-medium ${tones[tone] || tones.rose}`;
+    el.textContent = message;
+    el.classList.remove("hidden");
+  }
+
+  function setFieldError(inputId, errorId, message) {
+    const input = $(inputId);
+    const error = $(errorId);
+    if (message) {
+      input.classList.add("border-rose-500");
+      error.textContent = message;
+      error.classList.remove("hidden");
+    } else {
+      input.classList.remove("border-rose-500");
+      error.textContent = "";
+      error.classList.add("hidden");
+    }
+  }
+
+  function friendlyAuthError(err) {
+    const code = err?.code || "";
+    const map = {
+      "auth/email-already-in-use": "An account with that email already exists.",
+      "auth/invalid-email": "That email address doesn't look right.",
+      "auth/weak-password": "Choose a stronger password.",
+      "auth/network-request-failed": "Network error. Check your connection and try again.",
+      "auth/too-many-requests": "Too many attempts. Wait a moment and try again.",
+    };
+    return map[code] || "Something went wrong creating your account. Please try again.";
+  }
+
+  function shakeEl(el) {
+    el.classList.remove("animate-shake");
+    void el.offsetWidth;
+    el.classList.add("animate-shake");
+  }
+
+  /* ---------- country list ---------- */
+  const COUNTRIES = [
+    "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria",
+    "Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan",
+    "Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia",
+    "Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (Brazzaville)","Congo (DRC)",
+    "Costa Rica","Croatia","Cuba","Cyprus","Czechia","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador",
+    "Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France",
+    "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau",
+    "Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland",
+    "Israel","Italy","Ivory Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo",
+    "Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania",
+    "Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius",
+    "Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia",
+    "Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway",
+    "Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland",
+    "Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino",
+    "Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands",
+    "Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland",
+    "Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia",
+    "Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+    "Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe",
+  ];
+
+  function populateCountries() {
+    const select = $("country");
+    COUNTRIES.forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      if (name === "Nigeria") opt.selected = false;
+      select.appendChild(opt);
+    });
+  }
+  populateCountries();
+
+  /* ---------- currency list ---------- */
+  const CURRENCIES = [
+    { code: "USD", name: "US Dollar", symbol: "$" },
+    { code: "EUR", name: "Euro", symbol: "€" },
+    { code: "GBP", name: "British Pound", symbol: "£" },
+    { code: "NGN", name: "Nigerian Naira", symbol: "₦" },
+    { code: "GHS", name: "Ghanaian Cedi", symbol: "₵" },
+    { code: "KES", name: "Kenyan Shilling", symbol: "KSh" },
+    { code: "ZAR", name: "South African Rand", symbol: "R" },
+    { code: "EGP", name: "Egyptian Pound", symbol: "E£" },
+    { code: "XOF", name: "West African CFA Franc", symbol: "CFA" },
+    { code: "XAF", name: "Central African CFA Franc", symbol: "FCFA" },
+    { code: "UGX", name: "Ugandan Shilling", symbol: "USh" },
+    { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh" },
+    { code: "MAD", name: "Moroccan Dirham", symbol: "MAD" },
+    { code: "CAD", name: "Canadian Dollar", symbol: "$" },
+    { code: "AUD", name: "Australian Dollar", symbol: "$" },
+    { code: "NZD", name: "New Zealand Dollar", symbol: "$" },
+    { code: "INR", name: "Indian Rupee", symbol: "₹" },
+    { code: "PKR", name: "Pakistani Rupee", symbol: "₨" },
+    { code: "BDT", name: "Bangladeshi Taka", symbol: "৳" },
+    { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
+    { code: "JPY", name: "Japanese Yen", symbol: "¥" },
+    { code: "KRW", name: "South Korean Won", symbol: "₩" },
+    { code: "SGD", name: "Singapore Dollar", symbol: "$" },
+    { code: "THB", name: "Thai Baht", symbol: "฿" },
+    { code: "IDR", name: "Indonesian Rupiah", symbol: "Rp" },
+    { code: "PHP", name: "Philippine Peso", symbol: "₱" },
+    { code: "VND", name: "Vietnamese Dong", symbol: "₫" },
+    { code: "AED", name: "UAE Dirham", symbol: "د.إ" },
+    { code: "SAR", name: "Saudi Riyal", symbol: "﷼" },
+    { code: "ILS", name: "Israeli Shekel", symbol: "₪" },
+    { code: "TRY", name: "Turkish Lira", symbol: "₺" },
+    { code: "RUB", name: "Russian Ruble", symbol: "₽" },
+    { code: "CHF", name: "Swiss Franc", symbol: "CHF" },
+    { code: "SEK", name: "Swedish Krona", symbol: "kr" },
+    { code: "NOK", name: "Norwegian Krone", symbol: "kr" },
+    { code: "DKK", name: "Danish Krone", symbol: "kr" },
+    { code: "PLN", name: "Polish Zloty", symbol: "zł" },
+    { code: "BRL", name: "Brazilian Real", symbol: "R$" },
+    { code: "MXN", name: "Mexican Peso", symbol: "$" },
+    { code: "ARS", name: "Argentine Peso", symbol: "$" },
+    { code: "COP", name: "Colombian Peso", symbol: "$" },
+  ];
+
+  // Best-effort default currency per country, used only as a starting suggestion.
+  const COUNTRY_CURRENCY = {
+    Nigeria: "NGN", Ghana: "GHS", Kenya: "KES", "South Africa": "ZAR", Egypt: "EGP",
+    "United States": "USD", "United Kingdom": "GBP", Canada: "CAD", Australia: "AUD", "New Zealand": "NZD",
+    Germany: "EUR", France: "EUR", Italy: "EUR", Spain: "EUR", Netherlands: "EUR", Ireland: "EUR", Portugal: "EUR",
+    India: "INR", Pakistan: "PKR", Bangladesh: "BDT", China: "CNY", Japan: "JPY", "South Korea": "KRW",
+    Singapore: "SGD", Thailand: "THB", Indonesia: "IDR", Philippines: "PHP", Vietnam: "VND",
+    "United Arab Emirates": "AED", "Saudi Arabia": "SAR", Israel: "ILS", Turkey: "TRY", Russia: "RUB",
+    Switzerland: "CHF", Sweden: "SEK", Norway: "NOK", Denmark: "DKK", Poland: "PLN",
+    Brazil: "BRL", Mexico: "MXN", Argentina: "ARS", Colombia: "COP",
+    Uganda: "UGX", Tanzania: "TZS", Morocco: "MAD",
+  };
+
+  function populateCurrencies() {
+    const select = $("currency");
+    CURRENCIES.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c.code;
+      opt.textContent = `${c.code} — ${c.name} (${c.symbol})`;
+      select.appendChild(opt);
+    });
+  }
+  populateCurrencies();
+
+  // Suggest a currency when country changes, but don't overwrite a choice the user already made.
+  let currencyTouched = false;
+  $("currency").addEventListener("change", () => { currencyTouched = true; });
+  $("country").addEventListener("change", (e) => {
+    if (currencyTouched) return;
+    const suggested = COUNTRY_CURRENCY[e.target.value];
+    if (suggested) $("currency").value = suggested;
+  });
+
+  /* ---------- account number ---------- */
+  function generateAccountNumber() {
+    let digits = String(Math.floor(1 + Math.random() * 8)); // first digit 1-9, never 0
+    for (let i = 0; i < 9; i++) digits += Math.floor(Math.random() * 10);
+    return digits;
+  }
+
+  function formatAccountNumber(num) {
+    return num.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+  }
+
+  /* ---------- step machine ---------- */
+  const TOTAL_STEPS = 5;
+  const steps = [$("step1"), $("step2"), $("step3"), $("step4"), $("step5"), $("step6")];
+  const dial = $("asideDial");
+  const dialLabel = $("asideDialLabel");
+  const DIAL_CIRC = 169.6; // 2*pi*27
+  let current = 1;
+
+  const asideCopy = {
+    1: ["Let's open your account.<br/>Takes about a minute.", "Free checking, savings that actually pays you, and a card you can freeze from your phone."],
+    2: ["Where should we<br/>send your card?", "Your address helps us verify your identity and keep your account secure."],
+    3: ["Tell us about<br/>your work life.", "This helps us tailor account limits and offers to how you earn."],
+    4: ["Pick a password<br/>only you would guess.", "We hash and encrypt everything — not even our own team can see it."],
+    5: ["One last look,<br/>then you're in.", "Double-check your details below before we spin up your account."],
+    6: ["Welcome to Violet.<br/>You're officially in.", "Your account number is ready — take a look at your details below."],
+  };
+
+  function updateAside(stepNum) {
+    const capped = Math.min(stepNum, TOTAL_STEPS);
+    const offset = DIAL_CIRC - (DIAL_CIRC * capped) / TOTAL_STEPS;
+    dial.style.strokeDashoffset = offset;
+    dialLabel.textContent = `${capped}/${TOTAL_STEPS}`;
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const label = $(`stepLabel${i}`);
+      const dot = label.querySelector("span");
+      if (i <= capped) {
+        label.classList.remove("text-white/50");
+        label.classList.add("text-white", "font-semibold");
+        dot.classList.remove("bg-white/40");
+        dot.classList.add("bg-white");
+      } else {
+        label.classList.add("text-white/50");
+        label.classList.remove("text-white", "font-semibold");
+        dot.classList.add("bg-white/40");
+        dot.classList.remove("bg-white");
+      }
+    }
+    const copy = asideCopy[stepNum] || asideCopy[TOTAL_STEPS];
+    const h = $("asideHeadline"), s = $("asideSub");
+    h.style.opacity = 0; s.style.opacity = 0;
+    setTimeout(() => { h.innerHTML = copy[0]; s.textContent = copy[1]; h.style.opacity = 1; s.style.opacity = 1; }, 220);
+  }
+
+  function updateMobileDots(stepNum) {
+    const capped = Math.min(stepNum, TOTAL_STEPS);
+    document.querySelectorAll("#mobileSteps [data-dot]").forEach((dot) => {
+      const n = Number(dot.dataset.dot);
+      dot.classList.toggle("bg-violet", n <= capped);
+      dot.classList.toggle("bg-ink/10", n > capped);
+    });
+  }
+
+  function goToStep(next, direction = "forward") {
+    const from = steps[current - 1];
+    const to = steps[next - 1];
+
+    from.classList.remove("step-current");
+    from.classList.add(direction === "forward" ? "step-enter-left" : "step-enter-right");
+    setTimeout(() => from.classList.add("hidden"), 450);
+
+    to.classList.remove("hidden");
+    to.classList.remove("step-enter-right", "step-enter-left");
+    void to.offsetWidth;
+    to.classList.add(direction === "forward" ? "step-enter-right" : "step-enter-left");
+    requestAnimationFrame(() => {
+      to.classList.remove("step-enter-right", "step-enter-left");
+      to.classList.add("step-current");
+    });
+
+    current = next;
+    updateAside(next);
+    updateMobileDots(next);
+  }
+
+  document.querySelectorAll("[data-back]").forEach((btn) => {
+    btn.addEventListener("click", () => goToStep(Number(btn.dataset.back), "back"));
+  });
+
+  /* ---------- step 1: personal details ---------- */
+  function calculateAge(dobStr) {
+    const dob = new Date(dobStr);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--;
+    return age;
+  }
+
+  // Prevent picking a future date of birth
+  $("dob").max = new Date().toISOString().split("T")[0];
+
+  $("toStep2Btn").addEventListener("click", () => {
+    const name = $("fullName").value.trim();
+    const email = $("regEmail").value.trim();
+    const phone = $("phoneNumber").value.trim();
+    const dob = $("dob").value;
+    let ok = true;
+
+    if (name.length < 2) { setFieldError("fullName", "fullNameError", "Enter your full name."); ok = false; }
+    else setFieldError("fullName", "fullNameError", "");
+
+    if (!isValidEmail(email)) { setFieldError("regEmail", "regEmailError", "Enter a valid email address."); ok = false; }
+    else setFieldError("regEmail", "regEmailError", "");
+
+    if (!isValidPhone(phone)) { setFieldError("phoneNumber", "phoneNumberError", "Enter a valid phone number."); ok = false; }
+    else setFieldError("phoneNumber", "phoneNumberError", "");
+
+    if (!dob) { setFieldError("dob", "dobError", "Enter your date of birth."); ok = false; }
+    else if (calculateAge(dob) < 18) { setFieldError("dob", "dobError", "You must be at least 18 to open an account."); ok = false; }
+    else setFieldError("dob", "dobError", "");
+
+    if (!ok) { shakeEl($("step1")); return; }
+    goToStep(2, "forward");
+  });
+
+  /* ---------- step 2: address ---------- */
+  $("toStep3Btn").addEventListener("click", () => {
+    const country = $("country").value;
+    const address = $("address").value.trim();
+    const city = $("city").value.trim();
+    const state = $("state").value.trim();
+    const postalCode = $("postalCode").value.trim();
+    let ok = true;
+
+    if (!country) { setFieldError("country", "countryError", "Select your country."); ok = false; }
+    else setFieldError("country", "countryError", "");
+
+    const currency = $("currency").value;
+    if (!currency) { setFieldError("currency", "currencyError", "Select a preferred currency."); ok = false; }
+    else setFieldError("currency", "currencyError", "");
+
+    if (address.length < 4) { setFieldError("address", "addressError", "Enter your street address."); ok = false; }
+    else setFieldError("address", "addressError", "");
+
+    if (city.length < 2) { setFieldError("city", "cityError", "Enter your city."); ok = false; }
+    else setFieldError("city", "cityError", "");
+
+    if (state.length < 2) { setFieldError("state", "stateError", "Enter your state or region."); ok = false; }
+    else setFieldError("state", "stateError", "");
+
+    if (postalCode.length < 3) { setFieldError("postalCode", "postalCodeError", "Enter your postal code."); ok = false; }
+    else setFieldError("postalCode", "postalCodeError", "");
+
+    if (!ok) { shakeEl($("step2")); return; }
+    goToStep(3, "forward");
+  });
+
+  /* ---------- step 3: employment ---------- */
+  $("toStep4Btn").addEventListener("click", () => {
+    const employmentStatus = $("employmentStatus").value;
+    let ok = true;
+
+    if (!employmentStatus) { setFieldError("employmentStatus", "employmentStatusError", "Select your employment status."); ok = false; }
+    else setFieldError("employmentStatus", "employmentStatusError", "");
+
+    if (!ok) { shakeEl($("step3")); return; }
+    goToStep(4, "forward");
+  });
+
+  /* ---------- step 4: password strength + confirm match ---------- */
+  const strengthFill = $("strengthFill");
+  const strengthLabel = $("strengthLabel");
+  const rules = {
+    length: { el: $("ruleLength"), test: (v) => v.length >= 8 },
+    upper:  { el: $("ruleUpper"),  test: (v) => /[A-Z]/.test(v) },
+    number: { el: $("ruleNumber"), test: (v) => /[0-9]/.test(v) },
+    symbol: { el: $("ruleSymbol"), test: (v) => /[^A-Za-z0-9]/.test(v) },
+  };
+
+  function paintRule(rule, passed) {
+    const dot = rule.el.querySelector(".rule-dot");
+    if (passed) {
+      dot.classList.remove("border-ink/20");
+      dot.classList.add("bg-mint", "border-mint");
+      dot.innerHTML = "";
+      rule.el.classList.remove("text-soft");
+      rule.el.classList.add("text-emerald-700");
+    } else {
+      dot.classList.add("border-ink/20");
+      dot.classList.remove("bg-mint", "border-mint");
+      rule.el.classList.add("text-soft");
+      rule.el.classList.remove("text-emerald-700");
+    }
+  }
+
+  function evaluatePassword(value) {
+    let passed = 0;
+    Object.values(rules).forEach((rule) => {
+      const ok = rule.test(value);
+      if (ok) passed++;
+      paintRule(rule, ok);
+    });
+    const pct = (passed / 4) * 100;
+    strengthFill.style.width = pct + "%";
+    if (!value) { strengthFill.style.width = "0%"; strengthFill.className = "strength-fill h-full w-0 bg-rose-400 rounded-full"; strengthLabel.textContent = "Password strength"; return passed; }
+    if (passed <= 1) { strengthFill.style.backgroundColor = "#fb7185"; strengthLabel.textContent = "Weak"; strengthLabel.className = "text-[12px] text-rose-500 font-medium"; }
+    else if (passed <= 3) { strengthFill.style.backgroundColor = "#f5a623"; strengthLabel.textContent = "Getting there"; strengthLabel.className = "text-[12px] text-amber-600 font-medium"; }
+    else { strengthFill.style.backgroundColor = "#1D9E75"; strengthLabel.textContent = "Strong"; strengthLabel.className = "text-[12px] text-emerald-700 font-medium"; }
+    return passed;
+  }
+
+  $("regPassword").addEventListener("input", (e) => {
+    evaluatePassword(e.target.value);
+    checkConfirmMatch();
+  });
+
+  function checkConfirmMatch() {
+    const pass = $("regPassword").value;
+    const confirm = $("regConfirm").value;
+    const icon = $("confirmMatchIcon");
+    if (confirm && pass === confirm) {
+      icon.classList.remove("hidden");
+      icon.style.transform = "scale(1)";
+      setFieldError("regConfirm", "regConfirmError", "");
+    } else {
+      icon.style.transform = "scale(0)";
+      if (confirm) setFieldError("regConfirm", "regConfirmError", "Passwords don't match yet.");
+      else setFieldError("regConfirm", "regConfirmError", "");
+    }
+  }
+  $("regConfirm").addEventListener("input", checkConfirmMatch);
+
+  $("toggleRegPassword").addEventListener("click", () => {
+    const input = $("regPassword");
+    const showing = input.type === "text";
+    input.type = showing ? "password" : "text";
+    $("regEyeOpen").classList.toggle("hidden", !showing);
+    $("regEyeClosed").classList.toggle("hidden", showing);
+  });
+
+  $("toStep5Btn").addEventListener("click", () => {
+    const pass = $("regPassword").value;
+    const confirm = $("regConfirm").value;
+    const passed = evaluatePassword(pass);
+    let ok = true;
+
+    if (passed < 3) { setAlert($("step4Alert"), "Choose a password that meets at least 3 of the requirements below.", "rose"); ok = false; }
+    else setAlert($("step4Alert"), "");
+
+    if (pass !== confirm || !confirm) { setFieldError("regConfirm", "regConfirmError", "Passwords don't match."); ok = false; }
+
+    if (!ok) { shakeEl($("step4")); return; }
+    buildReview($("reviewBox"), false);
+    goToStep(5, "forward");
+  });
+
+  /* ---------- shared: build the review list ---------- */
+  function collectFormData() {
+    return {
+      fullName: $("fullName").value.trim(),
+      email: $("regEmail").value.trim(),
+      phone: $("phoneNumber").value.trim(),
+      dob: $("dob").value,
+      country: $("country").value,
+      currency: $("currency").value,
+      address: $("address").value.trim(),
+      city: $("city").value.trim(),
+      state: $("state").value.trim(),
+      postalCode: $("postalCode").value.trim(),
+      employmentStatus: $("employmentStatus").value,
+      occupation: $("occupation").value.trim(),
+    };
+  }
+
+  function reviewRow(label, value) {
+    return `<div class="flex justify-between gap-4"><span class="text-soft flex-shrink-0">${label}</span><span class="font-semibold text-ink text-right break-words">${value || "—"}</span></div>`;
+  }
+
+  function buildReview(container, withAccountNumber, accountNumber) {
+    const data = collectFormData();
+    let rows = [
+      reviewRow("Name", data.fullName),
+      reviewRow("Email", data.email),
+      reviewRow("Phone", data.phone),
+      reviewRow("Date of birth", data.dob),
+      reviewRow("Country", data.country),
+      reviewRow("Preferred currency", data.currency),
+      reviewRow("Address", data.address),
+      reviewRow("City", data.city),
+      reviewRow("State / Region", data.state),
+      reviewRow("Postal code", data.postalCode),
+      reviewRow("Employment", data.employmentStatus),
+      reviewRow("Occupation", data.occupation),
+    ];
+    if (withAccountNumber) rows.push(reviewRow("Account number", formatAccountNumber(accountNumber)));
+    container.innerHTML = rows.join("");
+  }
+
+  /* ---------- step 5: create account ---------- */
+  $("agreeTerms").addEventListener("change", () => setFieldError("agreeTerms", "agreeTermsError", ""));
+
+  $("createAccountBtn").addEventListener("click", async () => {
+    setAlert($("step5Alert"), "");
+    if (!$("agreeTerms").checked) {
+      $("agreeTermsError").textContent = "You need to agree to continue.";
+      $("agreeTermsError").classList.remove("hidden");
+      shakeEl($("step5"));
+      return;
+    }
+    $("agreeTermsError").classList.add("hidden");
+
+    const data = collectFormData();
+    const password = $("regPassword").value;
+    const accountNumber = generateAccountNumber();
+
+    const btn = $("createAccountBtn");
+    btn.disabled = true;
+    $("createSpinner").classList.remove("hidden");
+    $("createLabel").textContent = "Creating account…";
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, data.email, password);
+      await updateProfile(cred.user, { displayName: data.fullName });
+
+      // Save the full profile + generated account number to Realtime Database
+      await set(ref(db, "users/" + cred.user.uid), {
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        dob: data.dob,
+        country: data.country,
+        currency: data.currency,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        postalCode: data.postalCode,
+        employmentStatus: data.employmentStatus,
+        occupation: data.occupation,
+        accountNumber: accountNumber,
+        createdAt: new Date().toISOString(),
+      });
+
+      $("successName").textContent = data.fullName ? `, ${data.fullName.split(" ")[0]}` : "";
+      $("acctNumberDisplay").textContent = formatAccountNumber(accountNumber);
+      $("copyAcctBtn").dataset.acct = accountNumber;
+      buildReview($("finalReviewBox"), true, accountNumber);
+
+      goToStep(6, "forward");
+      launchConfetti();
+      setTimeout(() => $("successCheck").classList.add("done"), 400);
+    } catch (err) {
+      console.error(err);
+      setAlert($("step5Alert"), friendlyAuthError(err), "rose");
+      shakeEl($("step5"));
+    }
+
+    btn.disabled = false;
+    $("createSpinner").classList.add("hidden");
+    $("createLabel").textContent = "Create account";
+  });
+
+  /* ---------- step 6: copy account number + continue to dashboard ---------- */
+  $("copyAcctBtn").addEventListener("click", async () => {
+    const acct = $("copyAcctBtn").dataset.acct || "";
+    try {
+      await navigator.clipboard.writeText(acct);
+      showToast("Account number copied", "mint");
+    } catch {
+      showToast("Couldn't copy — copy it manually", "rose");
+    }
+  });
+
+  $("continueToDashboardBtn").addEventListener("click", () => {
+    // TODO: point this at your app's real dashboard route
+    window.location.href = "dashboard.html";
+  });
+
+  /* ---------- tiny confetti burst ---------- */
+  function launchConfetti() {
+    const host = $("confettiHost");
+    const colors = ["#6C5CE7", "#FFB199", "#7FD9BE", "#8ED2F0"];
+    for (let i = 0; i < 14; i++) {
+      const dot = document.createElement("span");
+      dot.className = "confetti-dot";
+      dot.style.background = colors[i % colors.length];
+      dot.style.left = 40 + (Math.random() * 40 - 20) + "%";
+      dot.style.top = "50%";
+      dot.style.animation = `confetti ${0.8 + Math.random() * 0.6}s ease-out forwards`;
+      dot.style.animationDelay = Math.random() * 0.15 + "s";
+      dot.style.transform = `translateX(${Math.random() * 60 - 30}px)`;
+      host.appendChild(dot);
+      setTimeout(() => dot.remove(), 1600);
+    }
+  }
+</script>
+
+</body>
+</html>
