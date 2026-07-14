@@ -496,8 +496,13 @@
 
         <div class="surface rounded-2xl p-5">
           <p class="font-display font-semibold text-[15px] mb-1" data-i18n="settings.pin">Transaction PIN</p>
-          <p class="help-sm mb-3" id="pinStatusText">Not set yet — you'll be asked to create one on your first transfer or withdrawal.</p>
+          <p class="help-sm mb-3" id="pinStatusText">Not set yet — you'll be asked to create one on your first transfer.</p>
           <button id="resetPinBtn" class="btn-ghost font-semibold text-[13.5px] py-2.5 px-4 rounded-full">Reset PIN</button>
+        </div>
+
+        <div class="surface rounded-2xl p-5 mt-5">
+          <p class="font-display font-semibold text-[15px] mb-1">Withdrawal security PINs</p>
+          <p class="help-sm">Four additional PINs are required, in order, to complete a withdrawal. These are assigned and managed by Violet Bank support — contact them if you don't have yours yet or need a reminder.</p>
         </div>
       </section>
 
@@ -556,7 +561,7 @@
   <h1 class="font-display font-semibold text-[22px] sm:text-[25px] mb-2">Your account has been suspended</h1>
   <p class="text-muted2 text-[14.5px] max-w-sm mb-7 leading-relaxed">For your security, access to your Violet account has been temporarily restricted. Please contact customer care to resolve this.</p>
   <div class="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
-    
+    <a href="mailto:support@violetbank.example" class="btn-primary font-display font-semibold text-[14.5px] py-3 rounded-full flex-1 flex items-center justify-center gap-2">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       Chat customer care
     </a>
@@ -564,11 +569,11 @@
   </div>
 </div>
 
-<!-- ============ PIN modal ============ -->
+<!-- ============ PIN modal (transfers — single user-created PIN) ============ -->
 <div id="pinModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
   <div class="surface rounded-3xl p-6 w-full max-w-[360px] text-center animate-popIn">
     <p id="pinModalTitle" class="font-display font-semibold text-[18px] mb-1.5">Create your transaction PIN</p>
-    <p id="pinModalSub" class="text-muted2 text-[13.5px] mb-5">You'll use this to approve transfers and withdrawals.</p>
+    <p id="pinModalSub" class="text-muted2 text-[13.5px] mb-5">You'll use this to approve transfers.</p>
 
     <div id="pinEntryRow" class="flex justify-center gap-2.5 mb-3">
       <input maxlength="1" inputmode="numeric" class="pin-box pin-digit" data-idx="0" />
@@ -590,6 +595,35 @@
     <div class="flex gap-3 mt-4">
       <button id="pinCancelBtn" class="btn-ghost font-semibold text-[14px] py-3 rounded-full flex-1" data-i18n="common.cancel">Cancel</button>
       <button id="pinSubmitBtn" class="btn-primary font-display font-semibold text-[14px] py-3 rounded-full flex-1">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Withdrawal security PIN modal (4 admin-assigned PINs, entered in sequence) ============ -->
+<div id="wpinModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+  <div class="surface rounded-3xl p-6 w-full max-w-[360px] text-center animate-popIn">
+    <p id="wpinModalTitle" class="font-display font-semibold text-[18px] mb-1.5">Security PIN 1 of 4</p>
+    <p id="wpinModalSub" class="text-muted2 text-[13.5px] mb-5">Enter the first security PIN provided by your account manager.</p>
+
+    <div class="flex justify-center gap-2.5 mb-4">
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="0" />
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="1" />
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="2" />
+      <input maxlength="1" inputmode="numeric" class="pin-box wpin-digit" data-idx="3" />
+    </div>
+
+    <div class="flex justify-center gap-1.5 mb-4" id="wpinProgress">
+      <span class="wpin-dot w-2 h-2 rounded-full bg-violet"></span>
+      <span class="wpin-dot w-2 h-2 rounded-full bg-[var(--border)]"></span>
+      <span class="wpin-dot w-2 h-2 rounded-full bg-[var(--border)]"></span>
+      <span class="wpin-dot w-2 h-2 rounded-full bg-[var(--border)]"></span>
+    </div>
+
+    <p id="wpinError" class="hidden error-sm mb-2"></p>
+
+    <div class="flex gap-3 mt-2">
+      <button id="wpinCancelBtn" class="btn-ghost font-semibold text-[14px] py-3 rounded-full flex-1">Cancel</button>
+      <button id="wpinSubmitBtn" class="btn-primary font-display font-semibold text-[14px] py-3 rounded-full flex-1">Continue</button>
     </div>
   </div>
 </div>
@@ -1010,7 +1044,7 @@
   $("historyTypeFilter").addEventListener("change", renderHistoryList);
   $("historyStatusFilter").addEventListener("change", renderHistoryList);
 
-  /* ---------- PIN hashing + modal ---------- */
+  /* ---------- PIN hashing + modal (transfers — single user-created PIN) ---------- */
   async function sha256Hex(text) {
     const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -1027,19 +1061,20 @@
   }
   wirePinBoxes(".pin-digit");
   wirePinBoxes(".pin-confirm-digit");
+  wirePinBoxes(".wpin-digit");
   function readPinBoxes(selector) { return Array.from(document.querySelectorAll(selector)).map((b) => b.value).join(""); }
-  function clearPinBoxes() { document.querySelectorAll(".pin-digit,.pin-confirm-digit").forEach((b) => (b.value = "")); }
+  function clearPinBoxes(selector) { document.querySelectorAll(selector).forEach((b) => (b.value = "")); }
 
   let pinResolveCallback = null;
   function requireTransactionPin(onVerified) {
     pinResolveCallback = onVerified;
     const hasPin = !!userData.pinHash;
     $("pinModalTitle").textContent = hasPin ? "Enter your transaction PIN" : "Create your transaction PIN";
-    $("pinModalSub").textContent = hasPin ? "Confirm this action with your 4-digit PIN." : "You'll use this to approve transfers and withdrawals.";
+    $("pinModalSub").textContent = hasPin ? "Confirm this action with your 4-digit PIN." : "You'll use this to approve transfers.";
     $("pinConfirmRow").classList.toggle("hidden", hasPin);
     $("pinConfirmRow").classList.toggle("flex", !hasPin);
     $("pinError").classList.add("hidden");
-    clearPinBoxes();
+    clearPinBoxes(".pin-digit,.pin-confirm-digit");
     $("pinModal").classList.remove("hidden");
     document.querySelector(".pin-digit").focus();
   }
@@ -1069,14 +1104,81 @@
     requireTransactionPin(() => {
       update(ref(db, `users/${currentUid}`), { pinHash: null }).then(() => {
         userData.pinHash = null;
-        showToast("PIN cleared — set a new one on your next transaction", "mint");
+        showToast("PIN cleared — set a new one on your next transfer", "mint");
         updatePinStatusText();
       });
     });
   });
   function updatePinStatusText() {
-    $("pinStatusText").textContent = userData.pinHash ? "Your transaction PIN is set." : "Not set yet — you'll be asked to create one on your first transfer or withdrawal.";
+    $("pinStatusText").textContent = userData.pinHash ? "Your transaction PIN is set." : "Not set yet — you'll be asked to create one on your first transfer.";
   }
+
+  /* ---------- withdrawal security PIN modal (4 admin-assigned PINs, entered in sequence) ---------- */
+  let wpinResolveCallback = null;
+  let wpinStep = 1;
+  const WPIN_ORDINAL = { 1: "first", 2: "second", 3: "third", 4: "fourth" };
+
+  function updateWpinProgress(step) {
+    document.querySelectorAll("#wpinProgress .wpin-dot").forEach((dot, i) => {
+      dot.classList.toggle("bg-violet", i < step);
+      dot.classList.toggle("bg-[var(--border)]", i >= step);
+    });
+  }
+
+  function requireWithdrawalPins(onVerified) {
+    wpinResolveCallback = onVerified;
+    wpinStep = 1;
+    $("wpinModalTitle").textContent = "Security PIN 1 of 4";
+    $("wpinModalSub").textContent = "Enter the first security PIN provided by your account manager.";
+    $("wpinError").classList.add("hidden");
+    clearPinBoxes(".wpin-digit");
+    updateWpinProgress(1);
+    $("wpinModal").classList.remove("hidden");
+    document.querySelector(".wpin-digit").focus();
+  }
+
+  $("wpinCancelBtn").addEventListener("click", () => {
+    $("wpinModal").classList.add("hidden");
+    wpinResolveCallback = null;
+  });
+
+  $("wpinSubmitBtn").addEventListener("click", () => {
+    const entered = readPinBoxes(".wpin-digit");
+    if (entered.length !== 4) {
+      $("wpinError").textContent = "Enter all 4 digits.";
+      $("wpinError").classList.remove("hidden");
+      return;
+    }
+
+    const pins = userData.withdrawalPins || {};
+    const expected = pins[`pin${wpinStep}`];
+    if (!expected || entered !== expected) {
+      $("wpinError").textContent = "Incorrect PIN. Please contact admin for the correct PIN.";
+      $("wpinError").classList.remove("hidden");
+      shakeEl($("wpinModal").firstElementChild);
+      clearPinBoxes(".wpin-digit");
+      document.querySelector(".wpin-digit").focus();
+      return;
+    }
+
+    $("wpinError").classList.add("hidden");
+
+    if (wpinStep < 4) {
+      wpinStep += 1;
+      $("wpinModalTitle").textContent = `Security PIN ${wpinStep} of 4`;
+      $("wpinModalSub").textContent = `Enter the ${WPIN_ORDINAL[wpinStep]} security PIN provided by your account manager.`;
+      updateWpinProgress(wpinStep);
+      clearPinBoxes(".wpin-digit");
+      document.querySelector(".wpin-digit").focus();
+      return;
+    }
+
+    // all 4 PINs verified
+    $("wpinModal").classList.add("hidden");
+    const cb = wpinResolveCallback;
+    wpinResolveCallback = null;
+    if (cb) cb();
+  });
 
   /* ---------- transactions: create + render ---------- */
   async function createTransaction(payload) {
@@ -1238,11 +1340,12 @@
     });
   });
 
+  /* ---------- withdrawal forms — gated by the 4 admin-assigned withdrawal PINs, in sequence ---------- */
   $("paypalForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const amount = validateAmount("ppAmount", "ppAmountError", userData.balance || 0);
     if (!amount) return;
-    requireTransactionPin(async () => {
+    requireWithdrawalPins(async () => {
       await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to PayPal", details: { method: "paypal", paypalEmail: $("ppEmail").value.trim() } });
       $("paypalForm").reset();
       setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
@@ -1253,7 +1356,7 @@
     e.preventDefault();
     const amount = validateAmount("caAmount", "caAmountError", userData.balance || 0);
     if (!amount) return;
-    requireTransactionPin(async () => {
+    requireWithdrawalPins(async () => {
       await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to Cash App", details: { method: "cashapp", cashtag: $("caTag").value.trim() } });
       $("cashappForm").reset();
       setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
@@ -1264,7 +1367,7 @@
     e.preventDefault();
     const amount = validateAmount("bwAmount", "bwAmountError", userData.balance || 0);
     if (!amount) return;
-    requireTransactionPin(async () => {
+    requireWithdrawalPins(async () => {
       await createTransaction({ type: "withdrawal", direction: "debit", amount, currency: userData.currency, description: "Withdrawal to bank account", details: { method: "bank", accountHolderName: $("bwName").value.trim(), bankName: $("bwBank").value.trim(), accountNumber: $("bwAccountNumber").value.trim(), routing: $("bwRouting").value.trim() } });
       $("bankWithdrawForm").reset();
       setAlert($("withdrawAlert"), "Withdrawal requested — pending admin approval.", "mint");
