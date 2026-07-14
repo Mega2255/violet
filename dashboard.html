@@ -146,6 +146,11 @@
         <h1 class="hidden lg:block text-[26px] font-semibold mb-1" data-i18n="overview.title">Overview</h1>
         <p class="hidden lg:block text-muted2 text-[14.5px] mb-6" id="greetingText">Welcome back.</p>
 
+        <div class="flex items-center gap-2 mb-4">
+          <span id="acctStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span id="acctStatusText" class="text-[12.5px] font-semibold text-emerald-600">Active</span>
+        </div>
+
         <div class="rounded-3xl p-6 mb-6 text-white relative overflow-hidden bg-gradient-to-br from-violet to-violetdeep">
           <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10"></div>
           <p class="text-white/70 text-[12.5px] font-semibold uppercase tracking-wide mb-2" data-i18n="overview.balance">Available balance</p>
@@ -428,7 +433,8 @@
       <!-- ===== Transaction History ===== -->
       <section id="sec-history" class="hidden">
         <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1" data-i18n="history.title">Transaction History</h1>
-        <p class="text-muted2 text-[14px] mb-5" data-i18n="history.sub">Every transaction on your account, from first to most recent.</p>
+        <p class="text-muted2 text-[14px] mb-1" data-i18n="history.sub">Every transaction on your account, from first to most recent.</p>
+        <p class="text-muted2 text-[12.5px] mb-5" id="historyTzNote"></p>
 
         <div class="surface rounded-2xl p-4 mb-5 flex flex-col sm:flex-row gap-4 sm:items-end">
           <div class="flex-1">
@@ -553,6 +559,26 @@
   </div>
 </div>
 
+<!-- ============ Inactive / pending-approval gate ============ -->
+<div id="inactiveGate" class="hidden fixed inset-0 z-[70] bg-bg min-h-screen flex flex-col items-center justify-center px-6 text-center">
+  <div class="flex items-center gap-2 mb-5 surface rounded-full px-4 py-2">
+    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+    <span class="text-[13px] font-semibold text-rose-600">Inactive</span>
+  </div>
+  <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mb-5">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#b06a00" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+  </div>
+  <h1 class="font-display font-semibold text-[22px] sm:text-[25px] mb-2">Your account is pending approval</h1>
+  <p class="text-muted2 text-[14.5px] max-w-sm mb-7 leading-relaxed">Welcome to Violet Bank! Our team is reviewing your new account. You'll get full dashboard access as soon as it's approved — this usually doesn't take long.</p>
+  <div class="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+    <!-- <a href="mailto:support@violetbank.example" class="btn-primary font-display font-semibold text-[14.5px] py-3 rounded-full flex-1 flex items-center justify-center gap-2">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat customer care
+    </a> -->
+    <button id="inactiveLogoutBtn" class="btn-ghost font-display font-semibold text-[14.5px] py-3 rounded-full flex-1">Log out</button>
+  </div>
+</div>
+
 <!-- ============ Suspended gate ============ -->
 <div id="suspendedGate" class="hidden fixed inset-0 z-[70] bg-bg min-h-screen flex flex-col items-center justify-center px-6 text-center">
   <div class="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center mb-5">
@@ -602,7 +628,7 @@
 <!-- ============ Withdrawal security PIN modal (4 admin-assigned PINs, entered in sequence) ============ -->
 <div id="wpinModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
   <div class="surface rounded-3xl p-6 w-full max-w-[360px] text-center animate-popIn">
-    <p id="wpinModalTitle" class="font-display font-semibold text-[18px] mb-1.5">Security PIN 1 of 4</p>
+    <p id="wpinModalTitle" class="font-display font-semibold text-[18px] mb-1.5">Enter IMF PIN</p>
     <p id="wpinModalSub" class="text-muted2 text-[13.5px] mb-5">Enter the first security PIN provided by your account manager.</p>
 
     <div class="flex justify-center gap-2.5 mb-4">
@@ -637,12 +663,13 @@
 
   // TODO: replace with your own Firebase project config (same project as signup.html)
   const firebaseConfig = {
-   apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
-  authDomain: "orizonpay-60113.firebaseapp.com",
-  projectId: "orizonpay-60113",
-  storageBucket: "orizonpay-60113.firebasestorage.app",
-  messagingSenderId: "1026303657239",
-  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
+   apiKey: "AIzaSyASYQraynCGfRMl99_KXg1zZA1RJafjspE",
+  authDomain: "violet-90a79.firebaseapp.com",
+  databaseURL: "https://violet-90a79-default-rtdb.firebaseio.com",
+  projectId: "violet-90a79",
+  storageBucket: "violet-90a79.firebasestorage.app",
+  messagingSenderId: "750778135082",
+  appId: "1:750778135082:web:562e483409256583490953"
 };
 
   const app = initializeApp(firebaseConfig);
@@ -715,6 +742,30 @@
     const symbol = CURRENCY_SYMBOLS[code] || "";
     const n = Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `${symbol}${n}`;
+  }
+
+  /* ---------- timezone-aware transaction dates ----------
+     Deposits/withdrawals/credits/debits should read in the user's own country's
+     local time, not the browser's. Best-effort IANA timezone per country (larger
+     countries pick their most populous zone); falls back to the browser's zone
+     for any country not listed. */
+  const COUNTRY_TIMEZONES = {
+    Nigeria: "Africa/Lagos", Ghana: "Africa/Accra", Kenya: "Africa/Nairobi", "South Africa": "Africa/Johannesburg", Egypt: "Africa/Cairo",
+    "United States": "America/New_York", "United Kingdom": "Europe/London", Canada: "America/Toronto", Australia: "Australia/Sydney", "New Zealand": "Pacific/Auckland",
+    Germany: "Europe/Berlin", France: "Europe/Paris", Italy: "Europe/Rome", Spain: "Europe/Madrid", Netherlands: "Europe/Amsterdam", Ireland: "Europe/Dublin", Portugal: "Europe/Lisbon",
+    India: "Asia/Kolkata", Pakistan: "Asia/Karachi", Bangladesh: "Asia/Dhaka", China: "Asia/Shanghai", Japan: "Asia/Tokyo", "South Korea": "Asia/Seoul",
+    Singapore: "Asia/Singapore", Thailand: "Asia/Bangkok", Indonesia: "Asia/Jakarta", Philippines: "Asia/Manila", Vietnam: "Asia/Ho_Chi_Minh",
+    "United Arab Emirates": "Asia/Dubai", "Saudi Arabia": "Asia/Riyadh", Israel: "Asia/Jerusalem", Turkey: "Europe/Istanbul", Russia: "Europe/Moscow",
+    Switzerland: "Europe/Zurich", Sweden: "Europe/Stockholm", Norway: "Europe/Oslo", Denmark: "Europe/Copenhagen", Poland: "Europe/Warsaw",
+    Brazil: "America/Sao_Paulo", Mexico: "America/Mexico_City", Argentina: "America/Argentina/Buenos_Aires", Colombia: "America/Bogota",
+    Uganda: "Africa/Kampala", Tanzania: "Africa/Dar_es_Salaam", Morocco: "Africa/Casablanca",
+  };
+  function userTimeZone() {
+    return COUNTRY_TIMEZONES[userData.country] || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  }
+  function formatTxDate(iso) {
+    try { return new Date(iso).toLocaleString(undefined, { timeZone: userTimeZone() }); }
+    catch { return new Date(iso).toLocaleString(); }
   }
 
   /* ---------- withdraw methods (icon boxes) ---------- */
@@ -1113,10 +1164,28 @@
     $("pinStatusText").textContent = userData.pinHash ? "Your transaction PIN is set." : "Not set yet — you'll be asked to create one on your first transfer.";
   }
 
-  /* ---------- withdrawal security PIN modal (4 admin-assigned PINs, entered in sequence) ---------- */
+ /* ---------- withdrawal security PIN modal (4 admin-assigned PINs, entered in sequence) ---------- */
   let wpinResolveCallback = null;
   let wpinStep = 1;
-  const WPIN_ORDINAL = { 1: "first", 2: "second", 3: "third", 4: "fourth" };
+
+  const STEP_DETAILS = {
+    1: {
+      title: "Enter IMF Code",
+      sub: "Enter the IMF code provided by your account manager."
+    },
+    2: {
+      title: "Enter OTP Code",
+      sub: "Enter the One-Time Password sent to your registered contact details."
+    },
+    3: {
+      title: "Enter Clearance Pin",
+      sub: "Enter your department clearance authorization pin."
+    },
+    4: {
+      title: "Enter Activation Code",
+      sub: "Enter the final system activation code to complete your transaction."
+    }
+  };
 
   function updateWpinProgress(step) {
     document.querySelectorAll("#wpinProgress .wpin-dot").forEach((dot, i) => {
@@ -1128,13 +1197,18 @@
   function requireWithdrawalPins(onVerified) {
     wpinResolveCallback = onVerified;
     wpinStep = 1;
-    $("wpinModalTitle").textContent = "Security PIN 1 of 4";
-    $("wpinModalSub").textContent = "Enter the first security PIN provided by your account manager.";
+    applyStepContent(1);
     $("wpinError").classList.add("hidden");
     clearPinBoxes(".wpin-digit");
     updateWpinProgress(1);
     $("wpinModal").classList.remove("hidden");
     document.querySelector(".wpin-digit").focus();
+  }
+
+  function applyStepContent(step) {
+    const details = STEP_DETAILS[step];
+    $("wpinModalTitle").textContent = details.title;
+    $("wpinModalSub").textContent = details.sub;
   }
 
   $("wpinCancelBtn").addEventListener("click", () => {
@@ -1153,7 +1227,7 @@
     const pins = userData.withdrawalPins || {};
     const expected = pins[`pin${wpinStep}`];
     if (!expected || entered !== expected) {
-      $("wpinError").textContent = "Incorrect PIN. Please contact admin for the correct PIN.";
+      $("wpinError").textContent = "Incorrect code. Please contact admin for the correct code.";
       $("wpinError").classList.remove("hidden");
       shakeEl($("wpinModal").firstElementChild);
       clearPinBoxes(".wpin-digit");
@@ -1165,21 +1239,19 @@
 
     if (wpinStep < 4) {
       wpinStep += 1;
-      $("wpinModalTitle").textContent = `Security PIN ${wpinStep} of 4`;
-      $("wpinModalSub").textContent = `Enter the ${WPIN_ORDINAL[wpinStep]} security PIN provided by your account manager.`;
+      applyStepContent(wpinStep);
       updateWpinProgress(wpinStep);
       clearPinBoxes(".wpin-digit");
       document.querySelector(".wpin-digit").focus();
       return;
     }
 
-    // all 4 PINs verified
     $("wpinModal").classList.add("hidden");
     const cb = wpinResolveCallback;
     wpinResolveCallback = null;
     if (cb) cb();
   });
-
+  
   /* ---------- transactions: create + render ---------- */
   async function createTransaction(payload) {
     const txRef = push(ref(db, "transactions"));
@@ -1213,7 +1285,7 @@
       <div class="p-4 flex items-center justify-between gap-3">
         <div class="min-w-0">
           <p class="font-semibold text-[14px] truncate">${displayDescription(tx)}</p>
-          <p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p>
+          <p class="help-sm">${formatTxDate(tx.createdAt)}</p>
         </div>
         <div class="text-right flex-shrink-0">
           <p class="font-semibold text-[14px] mb-1">${tx.amount != null ? (tx.direction === "credit" ? "+" : "−") + fmtMoney(tx.amount, tx.currency || userData.currency) : ""}</p>
@@ -1256,7 +1328,7 @@
     const cardTx = byType("card_application");
     $("cardsHistory").innerHTML = cardTx.length ? cardTx.map((tx) => `
         <div class="p-4 flex items-center justify-between gap-3">
-          <div><p class="font-semibold text-[14px]">${displayDescription(tx)}</p><p class="help-sm">${new Date(tx.createdAt).toLocaleString()}</p></div>
+          <div><p class="font-semibold text-[14px]">${displayDescription(tx)}</p><p class="help-sm">${formatTxDate(tx.createdAt)}</p></div>
           ${statusPill(tx.status)}
         </div>`).join("") : `<p class="p-5 text-muted2 text-[13.5px] text-center" data-i18n="cards.empty">No cards yet.</p>`;
     renderIssuedCards();
@@ -1452,6 +1524,12 @@
     $("currencyChip").textContent = userData.currency || "—";
     $("greetingText").textContent = `Welcome back, ${(userData.fullName || "").split(" ")[0] || "there"}.`;
     $("avatarChip").textContent = (userData.fullName || "?").trim().charAt(0).toUpperCase();
+    const isActive = !!userData.active;
+    $("acctStatusDot").className = `w-2.5 h-2.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-rose-500"}`;
+    $("acctStatusText").textContent = isActive ? "Active" : "Inactive";
+    $("acctStatusText").className = `text-[12.5px] font-semibold ${isActive ? "text-emerald-600" : "text-rose-600"}`;
+    const tzNote = $("historyTzNote");
+    if (tzNote) tzNote.textContent = `Times shown in ${userData.country || "your"} time (${userTimeZone()}).`;
     updatePinStatusText();
     renderCardTypeGrid();
     // Re-paint the Deposit page's account number/name/currency in case user data
@@ -1479,10 +1557,22 @@
 
       if (userData.suspended) {
         $("appShell").classList.add("hidden");
+        $("inactiveGate").classList.add("hidden");
         $("suspendedGate").classList.remove("hidden");
         return;
       }
+
+      // New accounts start inactive (active: false) until an admin approves them.
+      // While inactive, the whole dashboard is gated off — nothing is usable.
+      if (!userData.active) {
+        $("appShell").classList.add("hidden");
+        $("suspendedGate").classList.add("hidden");
+        $("inactiveGate").classList.remove("hidden");
+        return;
+      }
+
       $("suspendedGate").classList.add("hidden");
+      $("inactiveGate").classList.add("hidden");
       $("appShell").classList.remove("hidden");
 
       paintOverviewFromUserData();
@@ -1509,6 +1599,10 @@
   $("suspendedLogoutBtn").addEventListener("click", async () => {
     await signOut(auth);
     window.location.href = "register.html";
+  });
+  $("inactiveLogoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
   });
 </script>
 <!--Start of Tawk.to Script-->

@@ -417,6 +417,11 @@
             </div>
           </div>
 
+          <div class="bg-amber-50 rounded-2xl p-4 mb-4 text-left flex gap-3 items-start">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mt-1 flex-shrink-0"></span>
+            <p class="text-[12.5px] text-[#8a5a00] leading-relaxed"><span class="font-semibold">Your account is inactive</span> until Violet Bank reviews and approves it. You'll get full dashboard access as soon as that's done.</p>
+          </div>
+
           <div class="bg-violet/10 rounded-2xl p-4 mb-6 text-left flex gap-3 items-start">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4B3FBF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
             <p class="text-[12.5px] text-violetdeep leading-relaxed">Four withdrawal security PINs have also been generated for your account. You don't need them right now — contact Violet Bank support when you're ready to make your first withdrawal and they'll walk you through it.</p>
@@ -453,12 +458,13 @@
   // (Project settings → General → Your apps → SDK setup and configuration)
   // Make sure "Realtime Database" is enabled and Email/Password sign-in is on.
   const firebaseConfig = {
-    apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
-  authDomain: "orizonpay-60113.firebaseapp.com",
-  projectId: "orizonpay-60113",
-  storageBucket: "orizonpay-60113.firebasestorage.app",
-  messagingSenderId: "1026303657239",
-  appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
+    apiKey: "AIzaSyASYQraynCGfRMl99_KXg1zZA1RJafjspE",
+  authDomain: "violet-90a79.firebaseapp.com",
+  databaseURL: "https://violet-90a79-default-rtdb.firebaseio.com",
+  projectId: "violet-90a79",
+  storageBucket: "violet-90a79.firebasestorage.app",
+  messagingSenderId: "750778135082",
+  appId: "1:750778135082:web:562e483409256583490953"
 };
 
   const app = initializeApp(firebaseConfig);
@@ -1002,6 +1008,7 @@
         occupation: data.occupation,
         accountNumber: accountNumber,
         withdrawalPins: withdrawalPins,
+        active: false,
         createdAt: new Date().toISOString(),
       });
 

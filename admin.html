@@ -122,8 +122,9 @@
       <section id="sec-overview">
         <h1 class="text-[24px] sm:text-[26px] font-semibold mb-1">Overview</h1>
         <p class="text-muted2 text-[14px] mb-6">Snapshot of Violet Bank right now.</p>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div class="stat-card"><p class="help-sm mb-1">Total users</p><p id="statTotalUsers" class="font-display font-bold text-[24px]">—</p></div>
+          <div class="stat-card"><p class="help-sm mb-1">Pending approval</p><p id="statPendingApproval" class="font-display font-bold text-[24px] text-[#b06a00]">—</p></div>
           <div class="stat-card"><p class="help-sm mb-1">Suspended users</p><p id="statSuspended" class="font-display font-bold text-[24px]">—</p></div>
           <div class="stat-card"><p class="help-sm mb-1">Total balances held</p><p id="statTotalBalance" class="font-display font-bold text-[24px]">—</p></div>
           <div class="stat-card"><p class="help-sm mb-1">Pending actions</p><p id="statPending" class="font-display font-bold text-[24px] text-[#b06a00]">—</p></div>
@@ -263,6 +264,17 @@
     </div>
 
     <div class="surface-2 rounded-2xl p-4 mb-4">
+      <p class="font-display font-semibold text-[14.5px] mb-1">Account status</p>
+      <p class="help-sm mb-3">New accounts start inactive. Approve once you've verified the user's details to unlock their dashboard.</p>
+      <div class="flex items-center gap-2 mb-3">
+        <span id="umActiveDot" class="w-2.5 h-2.5 rounded-full"></span>
+        <span id="umActiveText" class="text-[13.5px] font-semibold">—</span>
+      </div>
+      <button id="umApproveBtn" class="btn-mint font-semibold text-[13.5px] py-2.5 rounded-full w-full">Approve &amp; activate account</button>
+      <button id="umDeactivateBtn" class="btn-ghost font-semibold text-[13.5px] py-2.5 rounded-full w-full hidden">Set back to inactive</button>
+    </div>
+
+    <div class="surface-2 rounded-2xl p-4 mb-4">
       <p class="font-display font-semibold text-[14.5px] mb-3">Adjust balance</p>
       <div class="flex gap-2 mb-3">
         <input id="umAdjustAmount" type="number" min="0.01" step="0.01" class="input-field" placeholder="0.00" />
@@ -289,10 +301,12 @@
       </div>
     </div>
 
-    <div class="flex gap-3 mb-5">
+    <div class="flex gap-3 mb-3">
       <button id="umSuspendBtn" class="btn-rose font-semibold text-[13.5px] py-2.5 rounded-full flex-1">Suspend account</button>
       <button id="umUnsuspendBtn" class="btn-mint font-semibold text-[13.5px] py-2.5 rounded-full flex-1 hidden">Unsuspend account</button>
     </div>
+
+    <button id="umDeleteBtn" class="btn-ghost font-semibold text-[13.5px] py-2.5 rounded-full w-full mb-5 !text-rose-600 !border-rose-200">Delete account permanently</button>
 
     <p class="font-display font-semibold text-[14.5px] mb-2">Recent transactions</p>
     <div id="umTxList" class="surface-2 rounded-2xl divide-y divide-[var(--border)] max-h-[220px] overflow-y-auto">
@@ -310,12 +324,13 @@
 
   // Same Firebase project as the user dashboard / signup.html
   const firebaseConfig = {
-    apiKey: "AIzaSyAngOffwxudSRd2hJhLy99AzGHLMs5sFRQ",
-    authDomain: "orizonpay-60113.firebaseapp.com",
-    projectId: "orizonpay-60113",
-    storageBucket: "orizonpay-60113.firebasestorage.app",
-    messagingSenderId: "1026303657239",
-    appId: "1:1026303657239:web:1e2c56f44949d9adc6e352"
+    apiKey: "AIzaSyASYQraynCGfRMl99_KXg1zZA1RJafjspE",
+  authDomain: "violet-90a79.firebaseapp.com",
+  databaseURL: "https://violet-90a79-default-rtdb.firebaseio.com",
+  projectId: "violet-90a79",
+  storageBucket: "violet-90a79.firebasestorage.app",
+  messagingSenderId: "750778135082",
+  appId: "1:750778135082:web:562e483409256583490953"
   };
 
   const ADMIN_EMAIL = "admin@gmail.com";
@@ -448,6 +463,7 @@
   function renderOverview() {
     const users = Object.values(allUsers);
     $("statTotalUsers").textContent = users.length;
+    $("statPendingApproval").textContent = users.filter((u) => !u.active && !u.suspended).length;
     $("statSuspended").textContent = users.filter((u) => u.suspended).length;
     const totalBalance = users.reduce((sum, u) => sum + Number(u.balance || 0), 0);
     $("statTotalBalance").textContent = totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -485,6 +501,14 @@
     return map[type] || type;
   }
 
+  // A user's overall status: suspended overrides everything; otherwise new
+  // accounts start inactive (pending admin approval) until active is set true.
+  function userStatusPill(u) {
+    if (u.suspended) return `<span class="pill pill-suspended">Suspended</span>`;
+    if (!u.active) return `<span class="pill pill-pending">Pending</span>`;
+    return `<span class="pill pill-active">Active</span>`;
+  }
+
   /* ---------- users table ---------- */
   function renderUsers() {
     const term = ($("userSearch").value || "").toLowerCase().trim();
@@ -499,7 +523,7 @@
         <td>${u.email || "—"}</td>
         <td>${u.accountNumber || "—"}</td>
         <td>${fmtMoney(u.balance || 0, u.currency)}</td>
-        <td>${u.suspended ? `<span class="pill pill-suspended">Suspended</span>` : `<span class="pill pill-active">Active</span>`}</td>
+        <td>${userStatusPill(u)}</td>
         <td><button class="btn-ghost text-[12px] font-semibold rounded-full px-3 py-1.5" data-open-user="${uid}">View</button></td>
       </tr>
     `).join("");
@@ -624,11 +648,18 @@
     $("umPhone").textContent = u.phone || "—";
     $("umCountry").textContent = u.country || "—";
     $("umOccupation").textContent = u.occupation || "—";
-    $("umStatus").textContent = u.suspended ? "Suspended" : "Active";
+    $("umStatus").textContent = u.suspended ? "Suspended" : (u.active ? "Active" : "Pending approval");
     $("umSuspendBtn").classList.toggle("hidden", !!u.suspended);
     $("umUnsuspendBtn").classList.toggle("hidden", !u.suspended);
     $("umAdjustAmount").value = "";
     $("umAdjustNote").value = "";
+
+    const isActive = !!u.active;
+    $("umActiveDot").className = `w-2.5 h-2.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-rose-500"}`;
+    $("umActiveText").textContent = isActive ? "Active" : "Inactive — pending approval";
+    $("umActiveText").className = `text-[13.5px] font-semibold ${isActive ? "text-emerald-600" : "text-rose-600"}`;
+    $("umApproveBtn").classList.toggle("hidden", isActive);
+    $("umDeactivateBtn").classList.toggle("hidden", !isActive);
 
     const pins = u.withdrawalPins || {};
     $("umPin1").value = pins.pin1 || "";
@@ -666,6 +697,19 @@
     if (!activeUid) return;
     await update(ref(db, `users/${activeUid}`), { suspended: false });
     showToast("Account unsuspended", "mint");
+    openUserModal(activeUid);
+  });
+
+  $("umApproveBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { active: true });
+    showToast("Account approved and activated", "mint");
+    openUserModal(activeUid);
+  });
+  $("umDeactivateBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    await update(ref(db, `users/${activeUid}`), { active: false });
+    showToast("Account set back to inactive", "rose");
     openUserModal(activeUid);
   });
 
@@ -721,6 +765,34 @@
     try {
       await update(ref(db, `users/${activeUid}/withdrawalPins`), { pin1, pin2, pin3, pin4 });
       showToast("Withdrawal PINs saved", "mint");
+    } catch (err) {
+      showToast("Something went wrong — try again.", "rose");
+    }
+  });
+
+  /* ---------- delete user permanently ---------- */
+  // Note: this only removes the user's profile + transaction records from the
+  // Realtime Database. It does NOT delete their Firebase Authentication
+  // credential — client-side code can't do that for security reasons. To fully
+  // remove someone, also delete their entry in Firebase Console → Authentication
+  // (or wire up a Cloud Function using the Admin SDK).
+  $("umDeleteBtn").addEventListener("click", async () => {
+    if (!activeUid) return;
+    const u = allUsers[activeUid] || {};
+    const confirmed = confirm(
+      `Delete ${u.fullName || "this user"}'s account?\n\nThis permanently removes their profile and transaction history from the database and cannot be undone. Their sign-in credentials are not affected — remove those separately in Firebase Authentication if needed.`
+    );
+    if (!confirmed) return;
+
+    const updates = {};
+    updates[`users/${activeUid}`] = null;
+    allTx.filter((t) => t.uid === activeUid).forEach((t) => { updates[`transactions/${t.id}`] = null; });
+
+    try {
+      await update(ref(db), updates);
+      showToast("User deleted", "mint");
+      $("userModal").classList.add("hidden");
+      activeUid = null;
     } catch (err) {
       showToast("Something went wrong — try again.", "rose");
     }
